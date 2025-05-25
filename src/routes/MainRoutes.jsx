@@ -11,6 +11,7 @@ const ViewBusRoutes = Loadable(lazy(() => import('component/BusRoutes/ViewBusRou
 const ViewStaff = Loadable(lazy(() => import('component/Staff/ViewStaff'))); // Thêm dòng này
 const ViewRoutes = Loadable(lazy(() => import('component/Routes/ViewRoutes'))); // Thêm dòng này
 const ViewStations = Loadable(lazy(() => import('component/Stations/ViewStations'))); // Thêm dòng này
+const Feedback = Loadable(lazy(() => import('component/Feedback/Feedback')));
 
 // ==============================|| MAIN ROUTES ||============================== //
 
@@ -25,7 +26,8 @@ const MainRoutes = {
     { path: '/bus-routes', element: <ViewBusRoutes /> },
     { path: '/staff', element: <ViewStaff /> },
     { path: '/metro-routes', element: <ViewRoutes /> },
-    { path: '/stations', element: <ViewStations /> }
+    { path: '/stations', element: <ViewStations /> },
+    { path: '/feedback', element: <Feedback /> }
 
   ]
 };
