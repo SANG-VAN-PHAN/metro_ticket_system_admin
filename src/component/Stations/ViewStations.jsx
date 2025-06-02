@@ -1,5 +1,6 @@
 import React from 'react';
-import { Card, CardContent, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Chip, Paper } from '@mui/material';
+import { Card, CardContent, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Chip, Paper, Stack, Button } from '@mui/material';
+import { Link } from 'react-router-dom';
 
 const stations = [
   {
@@ -42,6 +43,17 @@ const ViewStations = () => (
       <Typography variant="h4" gutterBottom>
         Danh sách các ga Metro
       </Typography>
+      <Stack direction="row" spacing={2} sx={{ mb: 2 }}>
+        <Button component={Link} to="/stations/create" variant="contained" color="primary">
+          Thêm ga mới
+        </Button>
+        <Button component={Link} to="/stations/delete" variant="outlined" color="error">
+          Xóa ga
+        </Button>
+        <Button component={Link} to="/stations/update" variant="outlined" color="secondary">
+          Cập nhật ga
+        </Button>
+      </Stack>
       <TableContainer component={Paper}>
         <Table>
           <TableHead>

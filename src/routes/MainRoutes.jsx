@@ -13,6 +13,10 @@ const ViewRoutes = Loadable(lazy(() => import('component/Routes/ViewRoutes'))); 
 const ViewStations = Loadable(lazy(() => import('component/Stations/ViewStations'))); // Thêm dòng này
 const Feedback = Loadable(lazy(() => import('component/Feedback/Feedback')));
 
+const CreateStation = Loadable(lazy(() => import('component/Stations/CreateStation')));
+const DeleteStation = Loadable(lazy(() => import('component/Stations/DeleteStation')));
+const UpdateStation = Loadable(lazy(() => import('component/Stations/UpdateStation')));
+
 // ==============================|| MAIN ROUTES ||============================== //
 
 const MainRoutes = {
@@ -27,7 +31,11 @@ const MainRoutes = {
     { path: '/staff', element: <ViewStaff /> },
     { path: '/metro-routes', element: <ViewRoutes /> },
     { path: '/stations', element: <ViewStations /> },
-    { path: '/feedback', element: <Feedback /> }
+    { path: '/feedback', element: <Feedback /> },
+
+    { path: '/stations/create', element: <CreateStation /> },
+    { path: '/stations/delete', element: <DeleteStation /> },
+    { path: '/stations/update', element: <UpdateStation /> }
 
   ]
 };
