@@ -1,5 +1,6 @@
 import React from 'react';
-import { Card, CardContent, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Chip, Paper, Avatar } from '@mui/material';
+import { Card, CardContent, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Chip, Paper, Avatar, Stack, Button } from '@mui/material';
+import { Link } from 'react-router-dom';
 
 const staffList = [
   {
@@ -45,6 +46,17 @@ const ViewStaff = () => (
       <Typography variant="h4" gutterBottom>
         Danh sách nhân viên
       </Typography>
+      <Stack direction="row" spacing={2} sx={{ mb: 2 }}>
+        <Button component={Link} to="/staff/create" variant="contained" color="primary">
+          Thêm nhân viên
+        </Button>
+        <Button component={Link} to="/staff/delete" variant="outlined" color="error">
+          Xóa nhân viên
+        </Button>
+        <Button component={Link} to="/staff/update" variant="outlined" color="secondary">
+          Cập nhật nhân viên
+        </Button>
+      </Stack>
       <TableContainer component={Paper}>
         <Table>
           <TableHead>

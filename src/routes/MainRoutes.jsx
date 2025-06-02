@@ -13,6 +13,11 @@ const ViewRoutes = Loadable(lazy(() => import('component/Routes/ViewRoutes'))); 
 const ViewStations = Loadable(lazy(() => import('component/Stations/ViewStations'))); // Thêm dòng này
 const Feedback = Loadable(lazy(() => import('component/Feedback/Feedback')));
 const ViewTicket = Loadable(lazy(() => import('component/Ticket/ViewTicket')));
+const TransactionHistory = Loadable(lazy(() => import('component/TransactionHistory/TransactionHistory')));
+
+const CreateStaff = Loadable(lazy(() => import('component/Staff/CreateStaff')));
+const DeleteStaff = Loadable(lazy(() => import('component/Staff/DeleteStaff')));
+const UpdateStaff = Loadable(lazy(() => import('component/Staff/UpdateStaff')));
 
 const CreateStation = Loadable(lazy(() => import('component/Stations/CreateStation')));
 const DeleteStation = Loadable(lazy(() => import('component/Stations/DeleteStation')));
@@ -43,6 +48,7 @@ const MainRoutes = {
     { path: '/stations', element: <ViewStations /> },
     { path: '/feedback', element: <Feedback /> },
     { path: '/ticket', element: <ViewTicket /> },
+    { path: '/transaction-history', element: <TransactionHistory /> },
 
     { path: '/stations/create', element: <CreateStation /> },
     { path: '/stations/delete', element: <DeleteStation /> },
@@ -55,6 +61,10 @@ const MainRoutes = {
     { path: '/ticket/create', element: <CreateTicket /> },
     { path: '/ticket/delete', element: <DeleteTicket /> },
     { path: '/ticket/update', element: <UpdateTicket /> },
+
+    { path: '/staff/create', element: <CreateStaff /> },
+    { path: '/staff/delete', element: <DeleteStaff /> },
+    { path: '/staff/update', element: <UpdateStaff /> }
 
   ]
 };
