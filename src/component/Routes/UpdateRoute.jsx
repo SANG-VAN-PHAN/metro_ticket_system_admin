@@ -1,28 +1,37 @@
-import React, { useState } from 'react';
-import { Card, CardContent, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Button, IconButton, Paper, Dialog, DialogTitle, DialogContent, DialogActions, TextField, MenuItem } from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import { Card, CardContent, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Button, IconButton, Paper, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Snackbar, Alert } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
-
-const initialRoutes = [
-  { id: 1, routeName: 'Tuyến số 1', start: 'Bến Thành', end: 'Suối Tiên', stations: 14, status: 'Đang hoạt động' },
-  { id: 2, routeName: 'Tuyến số 2', start: 'Bến Thành', end: 'Tham Lương', stations: 11, status: 'Đang xây dựng' },
-  { id: 3, routeName: 'Tuyến số 3A', start: 'Bến Thành', end: 'Bến xe Miền Tây', stations: 10, status: 'Đang quy hoạch' }
-];
-
+import { useNavigate } from 'react-router-dom';
 const UpdateRoute = () => {
-  const [routes, setRoutes] = useState(initialRoutes);
+  const navigate = useNavigate();
+  const [routes, setRoutes] = useState([]);
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState(null);
+  const [success, setSuccess] = useState(false);
   const [form, setForm] = useState({
-    routeName: '',
-    start: '',
-    end: '',
-    stations: '',
-    status: 'Đang hoạt động'
+    code: '',
+    name: '',
+    thumbnailImageUrl: '',
+    lengthInKm: ''
   });
+
+  // Lấy danh sách tuyến từ API
+  useEffect(() => {
+    fetch('https://api.metroticketingsystem.site/api/catalog/routes', {
+      headers: { 'Accept': 'application/json' }
+    })
+      .then(res => res.json())
+      .then(data => setRoutes(data.data.routes || []));
+  }, []);
 
   const handleOpen = (route) => {
     setSelected(route);
-    setForm(route);
+    setForm({
+      code: route.code,
+      name: route.name,
+      thumbnailImageUrl: route.thumbnailImageUrl,
+      lengthInKm: route.lengthInKm
+    });
     setOpen(true);
   };
 
@@ -30,11 +39,10 @@ const UpdateRoute = () => {
     setOpen(false);
     setSelected(null);
     setForm({
-      routeName: '',
-      start: '',
-      end: '',
-      stations: '',
-      status: 'Đang hoạt động'
+      code: '',
+      name: '',
+      thumbnailImageUrl: '',
+      lengthInKm: ''
     });
   };
 
@@ -42,10 +50,35 @@ const UpdateRoute = () => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleUpdate = (e) => {
+  // Gửi cập nhật lên API
+  const handleUpdate = async (e) => {
     e.preventDefault();
-    setRoutes(routes.map((r) => (r.id === selected.id ? { ...form, id: selected.id } : r)));
-    handleClose();
+    if (!selected) return;
+    const formBody = new URLSearchParams({
+      id: selected.id,
+      code: form.code,
+      name: form.name,
+      thumbnailImageUrl: form.thumbnailImageUrl || 'empty',
+      lengthInKm: form.lengthInKm
+    }).toString();
+
+    try {
+      const res = await fetch(`https://api.metroticketingsystem.site/api/catalog/routes`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Accept': 'application/json'
+        },
+        body: formBody
+      });
+      if (!res.ok) throw new Error('Lỗi khi cập nhật tuyến!');
+      // Cập nhật lại danh sách tuyến ở client
+      setRoutes(routes.map((r) => (r.id === selected.id ? { ...r, ...form } : r)));
+      setSuccess(true);
+      handleClose();
+    } catch (err) {
+      alert('Không thể cập nhật tuyến. Vui lòng thử lại!');
+    }
   };
 
   return (
@@ -54,26 +87,32 @@ const UpdateRoute = () => {
         <Typography variant="h4" gutterBottom>
           Cập nhật tuyến Metro
         </Typography>
+         <Button
+                  variant="outlined"
+                  color="secondary"
+                  onClick={() => navigate('/metro-routes')}
+                  sx={{ mb: 2 }}
+                >
+                  Quay lại danh sách
+                </Button>
         <TableContainer component={Paper}>
           <Table>
             <TableHead>
               <TableRow>
+                <TableCell>Mã tuyến</TableCell>
                 <TableCell>Tên tuyến</TableCell>
-                <TableCell>Điểm đầu</TableCell>
-                <TableCell>Điểm cuối</TableCell>
-                <TableCell>Số ga</TableCell>
-                <TableCell>Trạng thái</TableCell>
+                <TableCell>Ảnh đại diện</TableCell>
+                <TableCell>Chiều dài (km)</TableCell>
                 <TableCell>Hành động</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {routes.map((route) => (
                 <TableRow key={route.id}>
-                  <TableCell>{route.routeName}</TableCell>
-                  <TableCell>{route.start}</TableCell>
-                  <TableCell>{route.end}</TableCell>
-                  <TableCell>{route.stations}</TableCell>
-                  <TableCell>{route.status}</TableCell>
+                  <TableCell>{route.code}</TableCell>
+                  <TableCell>{route.name}</TableCell>
+                  <TableCell>{route.thumbnailImageUrl}</TableCell>
+                  <TableCell>{route.lengthInKm}</TableCell>
                   <TableCell>
                     <IconButton color="primary" onClick={() => handleOpen(route)}>
                       <EditIcon />
@@ -87,58 +126,54 @@ const UpdateRoute = () => {
 
         <Dialog open={open} onClose={handleClose}>
           <DialogTitle>Cập nhật tuyến Metro</DialogTitle>
+           <Button
+                    variant="outlined"
+                    color="secondary"
+                    onClick={() => navigate('/metro-routes')}
+                    sx={{ mb: 2 }}
+                  >
+                    Quay lại danh sách
+                  </Button>
           <form onSubmit={handleUpdate}>
             <DialogContent>
               <TextField
+                label="Mã tuyến"
+                name="code"
+                value={form.code}
+                onChange={handleChange}
+                fullWidth
+                margin="normal"
+                required
+              />
+              <TextField
                 label="Tên tuyến"
-                name="routeName"
-                value={form.routeName}
+                name="name"
+                value={form.name}
                 onChange={handleChange}
                 fullWidth
                 margin="normal"
                 required
               />
               <TextField
-                label="Điểm đầu"
-                name="start"
-                value={form.start}
+                label="Ảnh đại diện"
+                name="thumbnailImageUrl"
+                value={form.thumbnailImageUrl}
                 onChange={handleChange}
                 fullWidth
                 margin="normal"
-                required
+                placeholder="https://..."
               />
               <TextField
-                label="Điểm cuối"
-                name="end"
-                value={form.end}
-                onChange={handleChange}
-                fullWidth
-                margin="normal"
-                required
-              />
-              <TextField
-                label="Số ga"
-                name="stations"
+                label="Chiều dài (km)"
+                name="lengthInKm"
                 type="number"
-                value={form.stations}
+                value={form.lengthInKm}
                 onChange={handleChange}
                 fullWidth
                 margin="normal"
                 required
+                inputProps={{ min: 0, step: 0.01 }}
               />
-              <TextField
-                select
-                label="Trạng thái"
-                name="status"
-                value={form.status}
-                onChange={handleChange}
-                fullWidth
-                margin="normal"
-              >
-                <MenuItem value="Đang hoạt động">Đang hoạt động</MenuItem>
-                <MenuItem value="Đang xây dựng">Đang xây dựng</MenuItem>
-                <MenuItem value="Đang quy hoạch">Đang quy hoạch</MenuItem>
-              </TextField>
             </DialogContent>
             <DialogActions>
               <Button onClick={handleClose}>Hủy</Button>
@@ -148,6 +183,11 @@ const UpdateRoute = () => {
             </DialogActions>
           </form>
         </Dialog>
+        <Snackbar open={success} autoHideDuration={3000} onClose={() => setSuccess(false)}>
+          <Alert onClose={() => setSuccess(false)} severity="success" sx={{ width: '100%' }}>
+            Cập nhật tuyến thành công!
+          </Alert>
+        </Snackbar>
       </CardContent>
     </Card>
   );

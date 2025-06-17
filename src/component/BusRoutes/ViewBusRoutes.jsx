@@ -1,78 +1,126 @@
-import React from 'react';
-import { Card, CardContent, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Chip, Paper } from '@mui/material';
+import React, { useEffect, useState } from 'react';
+import { Card, CardContent, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Stack, Button, Pagination } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
+import IconButton from '@mui/material/IconButton';
+import DeleteIcon from '@mui/icons-material/Delete';
 
-const busRoutes = [
-  {
-    id: 1,
-    routeNumber: '01',
-    start: 'Bến xe Miền Đông',
-    end: 'Bến xe Chợ Lớn',
-    departure: '06:00',
-    status: 'Đang chạy'
-  },
-  {
-    id: 2,
-    routeNumber: '02',
-    start: 'Bến xe An Sương',
-    end: 'Bến xe Miền Tây',
-    departure: '06:30',
-    status: 'Tạm dừng'
-  },
-  {
-    id: 3,
-    routeNumber: '03',
-    start: 'Bến Thành',
-    end: 'Thủ Đức',
-    departure: '07:00',
-    status: 'Đang chạy'
-  }
-];
+const ViewBusRoutes = () => {
+  const [buses, setBuses] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+  const navigate = useNavigate();
 
-const statusColor = (status) => {
-  switch (status) {
-    case 'Đang chạy':
-      return 'success';
-    case 'Tạm dừng':
-      return 'warning';
-    default:
-      return 'default';
+  const fetchBuses = (page = 0) => {
+    setLoading(true);
+    fetch(`https://api.metroticketingsystem.site/api/catalog/Buses?page=${page}`, {
+      headers: { 'Accept': 'application/json' }
+    })
+      .then(res => res.json())
+      .then(data => {
+        setBuses(data.data.buses || []);
+        setTotalPages(data.data.totalPages || 1);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  };
+
+  const handleDelete = async (id) => {
+  if (!window.confirm('Bạn có chắc muốn xóa tuyến này?')) return;
+  try {
+    const res = await fetch(`https://api.metroticketingsystem.site/api/catalog/Buses/${id}`, {
+      method: 'DELETE',
+      headers: { 'Accept': 'application/json' }
+    });
+    if (!res.ok) throw new Error('Lỗi khi xóa tuyến!');
+    // Sau khi xóa, reload lại danh sáchs
+    fetchBuses(currentPage);
+  } catch (err) {
+    alert('Không thể xóa tuyến. Vui lòng thử lại!');
   }
 };
 
-const ViewBusRoutes = () => (
-  <Card>
-    <CardContent>
-      <Typography variant="h4" gutterBottom>
-        Danh sách tuyến xe buýt
-      </Typography>
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Số tuyến</TableCell>
-              <TableCell>Điểm đầu</TableCell>
-              <TableCell>Điểm cuối</TableCell>
-              <TableCell>Giờ xuất phát</TableCell>
-              <TableCell>Trạng thái</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {busRoutes.map((route) => (
-              <TableRow key={route.id}>
-                <TableCell>{route.routeNumber}</TableCell>
-                <TableCell>{route.start}</TableCell>
-                <TableCell>{route.end}</TableCell>
-                <TableCell>{route.departure}</TableCell>
-                <TableCell>
-                  <Chip label={route.status} color={statusColor(route.status)} />
-                </TableCell>
+  useEffect(() => {
+    fetchBuses(currentPage);
+  }, [currentPage]);
+
+  const handlePageChange = (event, value) => {
+    setCurrentPage(value - 1); // Pagination component is 1-based, API is 0-based
+  };
+
+  return (
+    <Card>
+      <CardContent>
+        <Typography variant="h4" gutterBottom>
+          Danh sách tuyến xe buýt
+        </Typography>
+        <Stack direction="row" spacing={2} sx={{ mb: 2 }}>
+          <Button variant="contained" color="primary" onClick={() => navigate('/bus-routes/create')}>
+            Thêm tuyến mới
+          </Button>
+        </Stack>
+        <TableContainer component={Paper}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>Mã tuyến</TableCell>
+                <TableCell>Tên tuyến</TableCell>
+                <TableCell>Biển số</TableCell>
+                <TableCell>Sức chứa</TableCell>
+                <TableCell>Trạng thái</TableCell>
+                <TableCell>Station ID</TableCell>
+                <TableCell>Hành động</TableCell>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-    </CardContent>
-  </Card>
-);
+            </TableHead>
+            <TableBody>
+              {loading ? (
+                <TableRow>
+                  <TableCell colSpan={7} align="center">Đang tải...</TableCell>
+                </TableRow>
+              ) : buses.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={7} align="center">Không có dữ liệu</TableCell>
+                </TableRow>
+              ) : (
+                buses.map((bus) => (
+                  <TableRow key={bus.id}>
+                    <TableCell>{bus.code}</TableCell>
+                    <TableCell>{bus.destinationName}</TableCell>
+                    <TableCell>{bus.licensePlates}</TableCell>
+                    <TableCell>{bus.capacity}</TableCell>
+                    <TableCell>{bus.status}</TableCell>
+                    <TableCell>{bus.stationId}</TableCell>
+                    <TableCell>
+                      <Button
+    variant="outlined"
+    color="primary"
+    onClick={() => navigate(`/bus-routes/update/${bus.id}`)}
+    sx={{ mr: 1 }}
+  >
+    Cập nhật
+  </Button>
+          <IconButton color="error" onClick={() => handleDelete(bus.id)}>
+            <DeleteIcon />
+          </IconButton>
+        </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
+        <Stack alignItems="center" sx={{ mt: 2 }}>
+          <Pagination
+            count={totalPages}
+            page={currentPage + 1}
+            onChange={handlePageChange}
+            color="primary"
+            shape="rounded"
+          />
+        </Stack>
+      </CardContent>
+    </Card>
+  );
+};
 
 export default ViewBusRoutes;

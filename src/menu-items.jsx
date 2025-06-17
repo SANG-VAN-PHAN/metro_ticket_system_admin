@@ -28,7 +28,7 @@ export default {
   items: [
     {
       id: 'navigation',
-      title: 'Materially',
+      title: 'Metro HCM',
       caption: 'Dashboard',
       type: 'group',
       icon: icons['NavigationOutlinedIcon'],
@@ -45,17 +45,59 @@ export default {
     {
       id: 'pages',
       title: 'Pages',
-      caption: 'Prebuild Pages',
+      caption: 'Metro Pages',
       type: 'group',
       icon: icons['NavigationOutlinedIcon'],
       children: [
         {
-          id: 'sample-page',
-          title: 'Sample Page',
+          id: 'metro-routes',
+          title: 'Routes',
           type: 'item',
-          url: '/sample-page',
+          url: '/metro-routes',
           icon: icons['ChromeReaderModeOutlinedIcon']
         },
+        {
+          id: 'staff',
+          title: 'Staff',
+          type: 'item',
+          url: '/staff',
+          icon: icons['AccountTreeOutlinedIcon']
+        },
+        {
+    id: 'stations',
+    title: 'Stations',
+    type: 'item',
+    url: '/stations',
+    icon: icons['AppsOutlinedIcon']
+  },
+   {
+    id: 'ticket',
+    title: 'Ticket',
+    type: 'item',
+    url: '/ticket',
+    icon: icons['ChromeReaderModeOutlinedIcon']
+  },
+  {
+  id: 'transaction-history',
+  title: 'Transaction History',
+  type: 'item',
+  url: '/transaction-history',
+  icon: icons['ChromeReaderModeOutlinedIcon']
+},
+{
+  id: 'promotion',
+  title: 'Promotion',
+  type: 'item',
+  url: '/promotion/create',
+  icon: icons['ChromeReaderModeOutlinedIcon']
+},
+{
+  id: 'bus-routes',
+  title: 'Bus Routes',
+  type: 'item',
+  url: '/bus-routes',
+  icon: icons['ChromeReaderModeOutlinedIcon']
+},
         {
           id: 'auth',
           title: 'Authentication',
@@ -67,14 +109,14 @@ export default {
               title: 'Login',
               type: 'item',
               url: '/application/login',
-              target: true
+              // target: true
             },
             {
               id: 'register',
               title: 'Register',
               type: 'item',
               url: '/application/register',
-              target: true
+              // target: true
             }
           ]
         }

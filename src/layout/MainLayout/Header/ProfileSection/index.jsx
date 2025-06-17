@@ -21,6 +21,22 @@ const ProfileSection = () => {
   const [open, setOpen] = React.useState(false);
   const anchorRef = React.useRef(null);
 
+  // Lấy tên user từ localStorage
+  const [userName, setUserName] = React.useState('');
+
+  React.useEffect(() => {
+  const user = localStorage.getItem('user');
+  if (user) {
+    try {
+      setUserName(JSON.parse(user).name || '');
+    } catch {
+      setUserName('');
+    }
+  } else {
+    setUserName('');
+  }
+}, []);
+
   const handleListItemClick = (event, index) => {
     setSelectedIndex(index);
   };
@@ -105,7 +121,7 @@ const ProfileSection = () => {
                     <ListItemIcon>
                       <PersonTwoToneIcon />
                     </ListItemIcon>
-                    <ListItemText primary="Profile" />
+                    <ListItemText primary={userName ? userName : "Profile"} />
                   </ListItemButton>
                   <ListItemButton selected={selectedIndex === 2} onClick={(event) => handleListItemClick(event, 2)}>
                     <ListItemIcon>

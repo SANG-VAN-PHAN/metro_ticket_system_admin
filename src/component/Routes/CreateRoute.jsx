@@ -1,96 +1,127 @@
 import React, { useState } from 'react';
-import { Card, CardContent, Typography, TextField, Button, MenuItem, Snackbar, Alert } from '@mui/material';
+import { Card, CardContent, Typography, TextField, Button, Snackbar, Alert } from '@mui/material';
+import { v4 as uuidv4 } from 'uuid';
+import { useNavigate } from 'react-router-dom';
 
 const CreateRoute = () => {
+  const navigate = useNavigate();
   const [form, setForm] = useState({
-    routeName: '',
-    start: '',
-    end: '',
-    stations: '',
-    status: 'Đang hoạt động'
+    code: '',
+    name: '',
+    thumbnailImageUrl: '',
+    lengthInKm: ''
   });
   const [open, setOpen] = useState(false);
+  const [error, setError] = useState('');
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Xử lý gửi dữ liệu lên API hoặc lưu local tại đây
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+  setError('');
+  if (!form.code || !form.name || !form.lengthInKm) {
+    setError('Vui lòng nhập đầy đủ thông tin bắt buộc!');
+    return;
+  }
+
+  // Tạo body dạng x-www-form-urlencoded
+  const formBody = new URLSearchParams({
+    id: uuidv4(),
+    code: form.code,
+    name: form.name,
+    thumbnailImageUrl: form.thumbnailImageUrl || 'empty',
+    lengthInKm: form.lengthInKm
+  }).toString();
+
+  try {
+    const res = await fetch('https://api.metroticketingsystem.site/api/catalog/routes', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Accept': 'application/json'
+      },
+      body: formBody
+    });
+    if (!res.ok) throw new Error('Lỗi khi thêm tuyến!');
     setOpen(true);
     setForm({
-      routeName: '',
-      start: '',
-      end: '',
-      stations: '',
-      status: 'Đang hoạt động'
+      code: '',
+      name: '',
+      thumbnailImageUrl: '',
+      lengthInKm: ''
     });
-  };
+  } catch (err) {
+    setError('Không thể thêm tuyến. Vui lòng thử lại!');
+  }
+};
 
   const handleClose = () => setOpen(false);
 
   return (
     <Card>
       <CardContent>
+        
         <Typography variant="h4" gutterBottom>
           Thêm tuyến Metro mới
         </Typography>
+         <Button
+          variant="outlined"
+          color="secondary"
+          onClick={() => navigate('/metro-routes')}
+          sx={{ mb: 2 }}
+        >
+          Quay lại danh sách
+        </Button>
         <form onSubmit={handleSubmit}>
           <TextField
-            label="Tên tuyến"
-            name="routeName"
-            value={form.routeName}
+            label="Mã tuyến (Code)"
+            name="code"
+            value={form.code}
             onChange={handleChange}
             fullWidth
             margin="normal"
             required
           />
           <TextField
-            label="Điểm đầu"
-            name="start"
-            value={form.start}
+            label="Tên tuyến (Name)"
+            name="name"
+            value={form.name}
             onChange={handleChange}
             fullWidth
             margin="normal"
             required
           />
           <TextField
-            label="Điểm cuối"
-            name="end"
-            value={form.end}
+            label="Ảnh đại diện (ThumbnailImageUrl)"
+            name="thumbnailImageUrl"
+            value={form.thumbnailImageUrl}
             onChange={handleChange}
             fullWidth
             margin="normal"
-            required
+            placeholder="https://..."
           />
           <TextField
-            label="Số ga"
-            name="stations"
+            label="Chiều dài (km)"
+            name="lengthInKm"
             type="number"
-            value={form.stations}
+            value={form.lengthInKm}
             onChange={handleChange}
             fullWidth
             margin="normal"
             required
+            inputProps={{ min: 0, step: 0.01 }}
           />
-          <TextField
-            select
-            label="Trạng thái"
-            name="status"
-            value={form.status}
-            onChange={handleChange}
-            fullWidth
-            margin="normal"
-          >
-            <MenuItem value="Đang hoạt động">Đang hoạt động</MenuItem>
-            <MenuItem value="Đang xây dựng">Đang xây dựng</MenuItem>
-            <MenuItem value="Đang quy hoạch">Đang quy hoạch</MenuItem>
-          </TextField>
           <Button type="submit" variant="contained" color="primary" sx={{ mt: 2 }}>
             Thêm tuyến
           </Button>
         </form>
+        {error && (
+          <Alert severity="error" sx={{ mt: 2 }}>
+            {error}
+          </Alert>
+        )}
         <Snackbar open={open} autoHideDuration={3000} onClose={handleClose}>
           <Alert onClose={handleClose} severity="success" sx={{ width: '100%' }}>
             Thêm tuyến thành công!

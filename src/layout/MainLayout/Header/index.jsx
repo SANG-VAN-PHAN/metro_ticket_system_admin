@@ -26,9 +26,9 @@ const Header = ({ drawerToggle }) => {
         <Grid container justifyContent="space-between" alignItems="center">
           <Box sx={{ display: { xs: 'none', md: 'block' } }}>
             <Grid item>
-              <Box mt={0.5}>
+              {/* <Box mt={0.5}>
                 <img src={logo} alt="Logo" />
-              </Box>
+              </Box> */}
             </Grid>
           </Box>
           <Grid item>

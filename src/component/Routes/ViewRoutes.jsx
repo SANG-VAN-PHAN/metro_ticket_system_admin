@@ -1,92 +1,180 @@
-import React from 'react';
-import { Card, CardContent, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Chip, Paper, Stack, Button } from '@mui/material';
+import React, { useEffect, useState } from 'react';
+import {
+  Card, CardContent, Typography, Table, TableBody, TableCell, TableContainer,
+  TableHead, TableRow, Paper, Stack, Button, Autocomplete, TextField, CircularProgress
+} from '@mui/material';
 import { Link } from 'react-router-dom';
+import Avatar from '@mui/material/Avatar';
 
-const metroRoutes = [
-  {
-    id: 1,
-    routeName: 'Tuyến số 1',
-    start: 'Bến Thành',
-    end: 'Suối Tiên',
-    stations: 14,
-    status: 'Đang hoạt động'
-  },
-  {
-    id: 2,
-    routeName: 'Tuyến số 2',
-    start: 'Bến Thành',
-    end: 'Tham Lương',
-    stations: 11,
-    status: 'Đang xây dựng'
-  },
-  {
-    id: 3,
-    routeName: 'Tuyến số 3A',
-    start: 'Bến Thành',
-    end: 'Bến xe Miền Tây',
-    stations: 10,
-    status: 'Đang quy hoạch'
-  }
-];
+const ViewRoutes = () => {
+  const [metroRoutes, setMetroRoutes] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-const statusColor = (status) => {
-  switch (status) {
-    case 'Đang hoạt động':
-      return 'success';
-    case 'Đang xây dựng':
-      return 'warning';
-    case 'Đang quy hoạch':
-      return 'default';
-    default:
-      return 'default';
+  const [stationOptions, setStationOptions] = useState([]);
+  const [stationLoading, setStationLoading] = useState(false);
+  const [searchInput, setSearchInput] = useState('');
+  const [filteredRoutes, setFilteredRoutes] = useState([]);
+  const [selectedStation, setSelectedStation] = useState(null);
+
+  useEffect(() => {
+    fetch('https://api.metroticketingsystem.site/api/catalog/routes', {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' }
+    })
+      .then(res => res.json())
+      .then(data => {
+        setMetroRoutes(data.data.routes);
+        setFilteredRoutes(data.data.routes);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, []);
+
+  // Khi nhập vào ô search, chỉ cập nhật dropdown
+  const handleStationSearch = async (event, value) => {
+    setSearchInput(value || '');
+
+    if (!value) {
+      setStationOptions([]);
+      return;
+    }
+
+    setStationLoading(true);
+    try {
+      const res = await fetch(`https://api.metroticketingsystem.site/api/catalog/Stations?name=${encodeURIComponent(value)}`);
+      const data = await res.json();
+      setStationOptions(data.data.stations || []);
+    } catch {
+      setStationOptions([]);
+    }
+    setStationLoading(false);
+  };
+
+  // Khi chọn station hoặc ấn Enter
+  const handleStationSelect = (event, value) => {
+    setSelectedStation(value);
+    if (value && value.id) {
+      setFilteredRoutes(
+        metroRoutes.filter(route =>
+          route.stations && route.stations.some(st => st.id === value.id)
+        )
+      );
+    } else {
+      setFilteredRoutes(metroRoutes);
+    }
+  };
+
+  // Bắt sự kiện Enter trong ô search
+  const handleKeyDown = (event) => {
+  if (event.key === 'Enter') {
+    if (!searchInput) {
+      setFilteredRoutes(metroRoutes);
+      return;
+    }
+    setFilteredRoutes(
+      metroRoutes.filter(route =>
+        route.name.toLowerCase().includes(searchInput.toLowerCase())
+      )
+    );
   }
 };
 
-const ViewRoutes = () => (
-  <Card>
-    <CardContent>
-      <Typography variant="h4" gutterBottom>
-        Danh sách tuyến đường Metro
-      </Typography>
-      <Stack direction="row" spacing={2} sx={{ mb: 2 }}>
-        <Button component={Link} to="/metro-routes/create" variant="contained" color="primary">
-          Thêm tuyến mới
-        </Button>
-        <Button component={Link} to="/metro-routes/delete" variant="outlined" color="error">
-          Xóa tuyến
-        </Button>
-        <Button component={Link} to="/metro-routes/update" variant="outlined" color="secondary">
-          Cập nhật tuyến
-        </Button>
-      </Stack>
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Tên tuyến</TableCell>
-              <TableCell>Điểm đầu</TableCell>
-              <TableCell>Điểm cuối</TableCell>
-              <TableCell>Số ga</TableCell>
-              <TableCell>Trạng thái</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {metroRoutes.map((route) => (
-              <TableRow key={route.id}>
-                <TableCell>{route.routeName}</TableCell>
-                <TableCell>{route.start}</TableCell>
-                <TableCell>{route.end}</TableCell>
-                <TableCell>{route.stations}</TableCell>
-                <TableCell>
-                  <Chip label={route.status} color={statusColor(route.status)} />
-                </TableCell>
+  if (loading) return <div>Loading...</div>;
+  if (!metroRoutes || metroRoutes.length === 0) return <div>Không có dữ liệu tuyến metro.</div>;
+
+  return (
+    <Card>
+      <Autocomplete
+  freeSolo
+  options={stationOptions}
+  getOptionLabel={(option) =>
+    typeof option === 'string'
+      ? option
+      : `${option.name} (${option.id})`
+  }
+  isOptionEqualToValue={(option, value) =>
+    typeof value === 'string'
+      ? false
+      : option.id === value.id
+  }
+  loading={stationLoading}
+  inputValue={searchInput}
+  onInputChange={handleStationSearch}
+  // KHÔNG dùng onChange để lọc khi nhập tự do
+  renderInput={(params) => (
+    <TextField
+      {...params}
+      label="Tìm kiếm Station"
+      onKeyDown={handleKeyDown}
+      InputProps={{
+        ...params.InputProps,
+        endAdornment: (
+          <>
+            {stationLoading ? <CircularProgress color="inherit" size={20} /> : null}
+            {params.InputProps.endAdornment}
+          </>
+        ),
+      }}
+    />
+  )}
+/>
+      <CardContent>
+        <Typography variant="h4" gutterBottom>
+          Danh sách tuyến đường Metro
+        </Typography>
+        <Stack direction="row" spacing={2} sx={{ mb: 2 }}>
+          <Button component={Link} to="/metro-routes/create" variant="contained" color="primary">
+            Thêm tuyến mới
+          </Button>
+          <Button component={Link} to="/metro-routes/delete" variant="outlined" color="error">
+            Xóa tuyến
+          </Button>
+          <Button component={Link} to="/metro-routes/update" variant="outlined" color="secondary">
+            Cập nhật tuyến
+          </Button>
+        </Stack>
+        <TableContainer component={Paper}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>Mã tuyến (Code)</TableCell>
+                <TableCell>Tên tuyến (Name)</TableCell>
+                <TableCell>Ảnh đại diện</TableCell>
+                <TableCell>Chiều dài (km)</TableCell>
+                <TableCell></TableCell>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-    </CardContent>
-  </Card>
-);
+            </TableHead>
+            <TableBody>
+              {filteredRoutes.map((route) => (
+                <TableRow key={route.id}>
+                  <TableCell>{route.code}</TableCell>
+                  <TableCell>{route.name}</TableCell>
+                  <TableCell>
+                    {route.thumbnailImageUrl && route.thumbnailImageUrl !== "empty" ? (
+                      <Avatar src={route.thumbnailImageUrl} alt={route.name} />
+                    ) : (
+                      <Avatar src="https://picsum.photos/seed/metro21/100/100" alt="default" />
+                    )}
+                  </TableCell>
+                  <TableCell>{route.lengthInKm}</TableCell>
+                  <TableCell>
+                    <Button
+                      component={Link}
+                      to={`/metro-routes/${route.id}`}
+                      variant="outlined"
+                      size="small"
+                    >
+                      Xem chi tiết
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </CardContent>
+    </Card>
+  );
+};
 
 export default ViewRoutes;

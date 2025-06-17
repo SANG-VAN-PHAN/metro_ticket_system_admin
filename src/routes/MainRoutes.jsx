@@ -14,6 +14,7 @@ const ViewStations = Loadable(lazy(() => import('component/Stations/ViewStations
 const Feedback = Loadable(lazy(() => import('component/Feedback/Feedback')));
 const ViewTicket = Loadable(lazy(() => import('component/Ticket/ViewTicket')));
 const TransactionHistory = Loadable(lazy(() => import('component/TransactionHistory/TransactionHistory')));
+const CreatePromotion = Loadable(lazy(() => import('component/Promotion/CreatePromotion')));
 
 const CreateStaff = Loadable(lazy(() => import('component/Staff/CreateStaff')));
 const DeleteStaff = Loadable(lazy(() => import('component/Staff/DeleteStaff')));
@@ -26,10 +27,15 @@ const UpdateStation = Loadable(lazy(() => import('component/Stations/UpdateStati
 const CreateRoute = Loadable(lazy(() => import('component/Routes/CreateRoute')));
 const DeleteRoute = Loadable(lazy(() => import('component/Routes/DeleteRoute')));
 const UpdateRoute = Loadable(lazy(() => import('component/Routes/UpdateRoute')));
+const DetailRoute = Loadable(lazy(() => import('component/Routes/DetailRoute')));
 
 const CreateTicket = Loadable(lazy(() => import('component/Ticket/CreateTicket')));
 const DeleteTicket = Loadable(lazy(() => import('component/Ticket/DeleteTicket')));
 const UpdateTicket = Loadable(lazy(() => import('component/Ticket/UpdateTicket')));
+
+const CreateBusRoute = Loadable(lazy(() => import('component/BusRoutes/CreateBusRoute')));
+const DeleteBusRoute = Loadable(lazy(() => import('component/BusRoutes/DeleteBusRoute')));
+const UpdateBusRoute = Loadable(lazy(() => import('component/BusRoutes/UpdateBusRoute')));
 
 
 // ==============================|| MAIN ROUTES ||============================== //
@@ -49,6 +55,7 @@ const MainRoutes = {
     { path: '/feedback', element: <Feedback /> },
     { path: '/ticket', element: <ViewTicket /> },
     { path: '/transaction-history', element: <TransactionHistory /> },
+    { path: '/promotion/create', element: <CreatePromotion /> },
 
     { path: '/stations/create', element: <CreateStation /> },
     { path: '/stations/delete', element: <DeleteStation /> },
@@ -57,6 +64,7 @@ const MainRoutes = {
     { path: '/metro-routes/create', element: <CreateRoute /> },
     { path: '/metro-routes/delete', element: <DeleteRoute /> },
     { path: '/metro-routes/update', element: <UpdateRoute /> },
+    { path: '/metro-routes/:id', element: <DetailRoute /> },
 
     { path: '/ticket/create', element: <CreateTicket /> },
     { path: '/ticket/delete', element: <DeleteTicket /> },
@@ -64,7 +72,12 @@ const MainRoutes = {
 
     { path: '/staff/create', element: <CreateStaff /> },
     { path: '/staff/delete', element: <DeleteStaff /> },
-    { path: '/staff/update', element: <UpdateStaff /> }
+    { path: '/staff/update', element: <UpdateStaff /> },
+
+    // Thêm các route mới cho bus routes
+    { path: '/bus-routes/create', element: <CreateBusRoute /> },
+    { path: '/bus-routes/delete', element: <DeleteBusRoute /> },
+    { path: '/bus-routes/update/:id', element: <UpdateBusRoute /> }
 
   ]
 };

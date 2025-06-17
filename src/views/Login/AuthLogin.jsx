@@ -14,7 +14,9 @@ import {
   InputLabel,
   OutlinedInput,
   InputAdornment,
-  IconButton
+  IconButton,
+  Snackbar,
+  Alert
 } from '@mui/material';
 
 //  third party
@@ -25,12 +27,14 @@ import { Formik } from 'formik';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import Google from 'assets/images/social-google.svg';
-
-// ==============================|| FIREBASE LOGIN ||============================== //
+import { useNavigate } from 'react-router-dom';
 
 const AuthLogin = ({ ...rest }) => {
   const theme = useTheme();
   const [showPassword, setShowPassword] = React.useState(false);
+  const [success, setSuccess] = React.useState(false);
+  const [error, setError] = React.useState('');
+  const navigate = useNavigate();
 
   const handleClickShowPassword = () => {
     setShowPassword(!showPassword);
@@ -93,11 +97,44 @@ const AuthLogin = ({ ...rest }) => {
           email: Yup.string().email('Must be a valid email').max(255).required('Email is required'),
           password: Yup.string().max(255).required('Password is required')
         })}
+        onSubmit={async (values, { setSubmitting, setErrors }) => {
+          setError('');
+          try {
+            const res = await fetch('https://api.metroticketingsystem.site/api/user/Auth/login', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+              },
+              body: JSON.stringify({
+                email: values.email,
+                password: values.password
+              })
+            });
+            if (!res.ok) {
+              const errMsg = await res.text();
+              setErrors({ submit: 'Đăng nhập thất bại. ' + errMsg });
+              setError('Đăng nhập thất bại. ' + errMsg);
+              setSubmitting(false);
+              return;
+            }
+            const data = await res.json();
+            localStorage.setItem('user', JSON.stringify(data.user));
+            console.log('Login successful:', data);
+            
+            setSuccess(true);
+            setTimeout(() => navigate('/'), 1500);
+          } catch (err) {
+            setErrors({ submit: 'Không thể đăng nhập. Vui lòng thử lại!' });
+            setError('Không thể đăng nhập. Vui lòng thử lại!');
+          }
+          setSubmitting(false);
+        }}
       >
         {({ errors, handleBlur, handleChange, handleSubmit, isSubmitting, touched, values }) => (
           <form noValidate onSubmit={handleSubmit} {...rest}>
             <TextField
-              error={Boolean(touched.email && errors.email)}
+            error={Boolean(touched.email && errors.email)}
               fullWidth
               helperText={touched.email && errors.email}
               label="Email Address / Username"
@@ -128,7 +165,7 @@ const AuthLogin = ({ ...rest }) => {
                       onMouseDown={handleMouseDownPassword}
                       edge="end"
                       size="large"
-                    >
+                   >
                       {showPassword ? <Visibility /> : <VisibilityOff />}
                     </IconButton>
                   </InputAdornment>
@@ -163,6 +200,16 @@ const AuthLogin = ({ ...rest }) => {
           </form>
         )}
       </Formik>
+      <Snackbar open={success} autoHideDuration={2000} onClose={() => setSuccess(false)}>
+        <Alert severity="success" sx={{ width: '100%' }}>
+          Đăng nhập thành công!
+        </Alert>
+      </Snackbar>
+      <Snackbar open={!!error} autoHideDuration={3000} onClose={() => setError('')}>
+        <Alert severity="error" sx={{ width: '100%' }}>
+          {error}
+        </Alert>
+      </Snackbar>
     </>
   );
 };

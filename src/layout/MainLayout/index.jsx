@@ -69,8 +69,8 @@ const MainLayout = () => {
       >
         <Box sx={theme.mixins.toolbar} />
         <OutletDiv>
-          <Outlet />
-                <Box sx={{mt:5}} > Distributed by <a href='https://themewagon.com' target='_blank'>ThemeWagon</a></Box>
+          <Outlet /> {/* nơi in ra nội dung chính của các trang*/}
+                {/* <Box sx={{mt:5}} > Distributed by <a href='https://themewagon.com' target='_blank'>ThemeWagon</a></Box> */}
 
         </OutletDiv>
       </Main>

@@ -17,7 +17,9 @@ import {
   InputAdornment,
   IconButton,
   FormControlLabel,
-  Checkbox
+  Checkbox,
+  Snackbar,
+  Alert
 } from '@mui/material';
 
 // third party
@@ -28,13 +30,15 @@ import { Formik } from 'formik';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import Google from 'assets/images/social-google.svg';
-
-// ==============================|| FIREBASE REGISTER ||============================== //
+import { useNavigate } from 'react-router-dom';
 
 const AuthRegister = ({ ...rest }) => {
   const theme = useTheme();
   const [showPassword, setShowPassword] = React.useState(false);
   const [checked, setChecked] = React.useState(false);
+  const [success, setSuccess] = React.useState(false);
+  const [error, setError] = React.useState('');
+  const navigate = useNavigate();
 
   const handleClickShowPassword = () => {
     setShowPassword(!showPassword);
@@ -89,17 +93,76 @@ const AuthRegister = ({ ...rest }) => {
 
       <Formik
         initialValues={{
-          email: 'admin@phoenixcoded.net',
-          password: 'aA123456',
+          email: '',
+          password: '',
+          firstName: '',
+          lastName: '',
           submit: null
         }}
         validationSchema={Yup.object().shape({
           email: Yup.string().email('Must be a valid email').max(255).required('Email is required'),
-          password: Yup.string().max(255).required('Password is required')
+          password: Yup.string().max(255).required('Password is required'),
+          firstName: Yup.string().max(255).required('First name is required'),
+          lastName: Yup.string().max(255).required('Last name is required')
         })}
+        onSubmit={async (values, { setSubmitting, setErrors }) => {
+          setError('');
+          try {
+            const res = await fetch('https://api.metroticketingsystem.site/api/user/Auth/register/customer', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+              },
+              body: JSON.stringify({
+                email: values.email,
+                password: values.password,
+                firstName: values.firstName,
+                lastName: values.lastName
+                })
+            });
+            if (!res.ok) {
+              const data = await res.json();
+              setErrors({ submit: data.message || 'Đăng ký thất bại.' });
+              setError(data.message || 'Đăng ký thất bại.');
+              setSubmitting(false);
+              return;
+            }
+            setSuccess(true);
+            setTimeout(() => navigate('/application/login'), 1500);
+          } catch (err) {
+            setErrors({ submit: 'Không thể đăng ký. Vui lòng thử lại!' });
+            setError('Không thể đăng ký. Vui lòng thử lại!');
+          }
+          setSubmitting(false);
+        }}
       >
         {({ errors, handleBlur, handleChange, handleSubmit, isSubmitting, touched, values }) => (
           <form noValidate onSubmit={handleSubmit} {...rest}>
+            <TextField
+              error={Boolean(touched.firstName && errors.firstName)}
+              fullWidth
+              helperText={touched.firstName && errors.firstName}
+              label="First Name"
+              margin="normal"
+              name="firstName"
+              onBlur={handleBlur}
+              onChange={handleChange}
+              value={values.firstName}
+              variant="outlined"
+              />
+            <TextField
+              error={Boolean(touched.lastName && errors.lastName)}
+              fullWidth
+              helperText={touched.lastName && errors.lastName}
+              label="Last Name"
+              margin="normal"
+              name="lastName"
+              onBlur={handleBlur}
+              onChange={handleChange}
+              value={values.lastName}
+              variant="outlined"
+            />
             <TextField
               error={Boolean(touched.email && errors.email)}
               fullWidth
@@ -174,9 +237,19 @@ const AuthRegister = ({ ...rest }) => {
                 Register
               </Button>
             </Box>
-          </form>
+            </form>
         )}
       </Formik>
+      <Snackbar open={success} autoHideDuration={2000} onClose={() => setSuccess(false)}>
+        <Alert severity="success" sx={{ width: '100%' }}>
+          Đăng ký thành công!
+        </Alert>
+      </Snackbar>
+      <Snackbar open={!!error} autoHideDuration={3000} onClose={() => setError('')}>
+        <Alert severity="error" sx={{ width: '100%' }}>
+          {error}
+        </Alert>
+      </Snackbar>
     </>
   );
 };

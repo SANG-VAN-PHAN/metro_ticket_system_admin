@@ -1,27 +1,57 @@
-import React, { useState } from 'react';
-import { Card, CardContent, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Button, IconButton, Paper, Dialog, DialogTitle, DialogContent, DialogActions, TextField, MenuItem } from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import { Card, CardContent, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Button, IconButton, Paper, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Snackbar, Alert } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
-
-const initialStations = [
-  { id: 1, name: 'Bến Thành', line: 'Tuyến số 1', location: 'Quận 1', status: 'Đang hoạt động' },
-  { id: 2, name: 'Suối Tiên', line: 'Tuyến số 1', location: 'Thủ Đức', status: 'Đang hoạt động' },
-  { id: 3, name: 'Tham Lương', line: 'Tuyến số 2', location: 'Quận 12', status: 'Đang xây dựng' }
-];
-
+import { useNavigate } from 'react-router-dom';
 const UpdateStation = () => {
-  const [stations, setStations] = useState(initialStations);
+  const navigate = useNavigate();
+  const [stations, setStations] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState(null);
   const [form, setForm] = useState({
+    id: '',
     name: '',
-    line: '',
-    location: '',
-    status: 'Đang hoạt động'
+    code: '',
+    streetNumber: '',
+    street: '',
+    ward: '',
+    district: '',
+    city: '',
+    thumbnailImageUrl: ''
   });
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState('');
+
+  const fetchStations = () => {
+    setLoading(true);
+    fetch('https://api.metroticketingsystem.site/api/catalog/Stations', {
+      headers: { 'Accept': 'application/json' }
+    })
+      .then(res => res.json())
+      .then(data => {
+        setStations(data.data.stations || []);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    fetchStations();
+  }, []);
 
   const handleOpen = (station) => {
     setSelected(station);
-    setForm(station);
+    setForm({
+      id: station.id,
+      name: station.name,
+      code: station.code,
+      streetNumber: station.streetNumber || '',
+      street: station.street || '',
+      ward: station.ward || '',
+      district: station.district || '',
+      city: station.city || '',
+      thumbnailImageUrl: station.thumbnailImageUrl === 'empty' ? '' : (station.thumbnailImageUrl || '')
+    });
     setOpen(true);
   };
 
@@ -29,10 +59,15 @@ const UpdateStation = () => {
     setOpen(false);
     setSelected(null);
     setForm({
+      id: '',
       name: '',
-      line: '',
-      location: '',
-      status: 'Đang hoạt động'
+      code: '',
+      streetNumber: '',
+      street: '',
+      ward: '',
+      district: '',
+      city: '',
+      thumbnailImageUrl: ''
     });
   };
 
@@ -40,11 +75,39 @@ const UpdateStation = () => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleUpdate = (e) => {
-    e.preventDefault();
-    setStations(stations.map((s) => (s.id === selected.id ? { ...form, id: selected.id } : s)));
+  const handleUpdate = async (e) => {
+  e.preventDefault();
+  try {
+    const res = await fetch('https://api.metroticketingsystem.site/api/catalog/Stations', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Accept': 'application/json'
+      },
+      body: new URLSearchParams({
+        id: form.id,
+        name: form.name,
+        code: form.code,
+        streetNumber: form.streetNumber,
+        street: form.street,
+        ward: form.ward,
+        district: form.district,
+        city: form.city,
+        thumbnailImageUrl: form.thumbnailImageUrl || 'empty'
+      }).toString()
+    });
+    if (!res.ok) {
+      const errMsg = await res.text();
+      setError('Không thể cập nhật ga. ' + errMsg);
+      return;
+    }
+    setSuccess(true);
     handleClose();
-  };
+    fetchStations();
+  } catch (err) {
+    setError('Không thể cập nhật ga. Vui lòng thử lại!');
+  }
+};
 
   return (
     <Card>
@@ -52,31 +115,51 @@ const UpdateStation = () => {
         <Typography variant="h4" gutterBottom>
           Cập nhật thông tin ga Metro
         </Typography>
+        <Button
+                          variant="outlined"
+                          color="secondary"
+                          onClick={() => navigate('/stations')}
+                          sx={{ mb: 2 }}
+                        >
+                          Quay lại danh sách
+                        </Button>
         <TableContainer component={Paper}>
           <Table>
             <TableHead>
               <TableRow>
+                <TableCell>Mã ga</TableCell>
                 <TableCell>Tên ga</TableCell>
-                <TableCell>Tuyến</TableCell>
-                <TableCell>Vị trí</TableCell>
-                <TableCell>Trạng thái</TableCell>
+                <TableCell>Địa chỉ</TableCell>
                 <TableCell>Hành động</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {stations.map((station) => (
-                <TableRow key={station.id}>
-                  <TableCell>{station.name}</TableCell>
-                  <TableCell>{station.line}</TableCell>
-                  <TableCell>{station.location}</TableCell>
-                  <TableCell>{station.status}</TableCell>
-                  <TableCell>
-                    <IconButton color="primary" onClick={() => handleOpen(station)}>
-                      <EditIcon />
-                    </IconButton>
-                  </TableCell>
+              {loading ? (
+                <TableRow>
+                  <TableCell colSpan={4} align="center">Đang tải...</TableCell>
                 </TableRow>
-              ))}
+              ) : stations.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={4} align="center">Không có dữ liệu</TableCell>
+                </TableRow>
+              ) : (
+                stations.map((station) => (
+                  <TableRow key={station.id}>
+                    <TableCell>{station.code}</TableCell>
+                    <TableCell>{station.name}</TableCell>
+                    <TableCell>
+                      {[station.streetNumber, station.street, station.ward, station.district, station.city]
+                        .filter(Boolean)
+                        .join(', ') || 'Chưa cập nhật'}
+                    </TableCell>
+                    <TableCell>
+                      <IconButton color="primary" onClick={() => handleOpen(station)}>
+                        <EditIcon />
+                      </IconButton>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
             </TableBody>
           </Table>
         </TableContainer>
@@ -95,35 +178,63 @@ const UpdateStation = () => {
                 required
               />
               <TextField
-                label="Tuyến"
-                name="line"
-                value={form.line}
+                label="Mã ga"
+                name="code"
+                value={form.code}
                 onChange={handleChange}
                 fullWidth
                 margin="normal"
                 required
               />
               <TextField
-                label="Vị trí"
-                name="location"
-                value={form.location}
+                label="Số nhà"
+                name="streetNumber"
+                value={form.streetNumber}
                 onChange={handleChange}
                 fullWidth
                 margin="normal"
-                required
               />
               <TextField
-                select
-                label="Trạng thái"
-                name="status"
-                value={form.status}
+                label="Tên đường"
+                name="street"
+                value={form.street}
                 onChange={handleChange}
                 fullWidth
                 margin="normal"
-              >
-                <MenuItem value="Đang hoạt động">Đang hoạt động</MenuItem>
-                <MenuItem value="Đang xây dựng">Đang xây dựng</MenuItem>
-              </TextField>
+              />
+              <TextField
+                label="Phường"
+                name="ward"
+                value={form.ward}
+                onChange={handleChange}
+                fullWidth
+                margin="normal"
+              />
+              <TextField
+                label="Quận"
+                name="district"
+                value={form.district}
+                onChange={handleChange}
+                fullWidth
+                margin="normal"
+              />
+              <TextField
+                label="Thành phố"
+                name="city"
+                value={form.city}
+                onChange={handleChange}
+                fullWidth
+                margin="normal"
+              />
+              <TextField
+                label="Ảnh đại diện (URL)"
+                name="thumbnailImageUrl"
+                value={form.thumbnailImageUrl}
+                onChange={handleChange}
+                fullWidth
+                margin="normal"
+                placeholder="https://..."
+              />
             </DialogContent>
             <DialogActions>
               <Button onClick={handleClose}>Hủy</Button>
@@ -133,6 +244,16 @@ const UpdateStation = () => {
             </DialogActions>
           </form>
         </Dialog>
+        <Snackbar open={success} autoHideDuration={2000} onClose={() => setSuccess(false)}>
+          <Alert severity="success" sx={{ width: '100%' }}>
+            Cập nhật ga thành công!
+          </Alert>
+        </Snackbar>
+        <Snackbar open={!!error} autoHideDuration={3000} onClose={() => setError('')}>
+          <Alert severity="error" sx={{ width: '100%' }}>
+            {error}
+          </Alert>
+        </Snackbar>
       </CardContent>
     </Card>
   );

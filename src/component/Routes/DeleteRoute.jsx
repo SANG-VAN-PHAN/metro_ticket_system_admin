@@ -1,17 +1,22 @@
-import React, { useState } from 'react';
-import { Card, CardContent, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Button, IconButton, Paper, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import { Card, CardContent, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Button, IconButton, Paper, Dialog, DialogTitle, DialogContent, DialogActions, Snackbar, Alert } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
-
-const initialRoutes = [
-  { id: 1, routeName: 'Tuyến số 1', start: 'Bến Thành', end: 'Suối Tiên', stations: 14, status: 'Đang hoạt động' },
-  { id: 2, routeName: 'Tuyến số 2', start: 'Bến Thành', end: 'Tham Lương', stations: 11, status: 'Đang xây dựng' },
-  { id: 3, routeName: 'Tuyến số 3A', start: 'Bến Thành', end: 'Bến xe Miền Tây', stations: 10, status: 'Đang quy hoạch' }
-];
-
+import { useNavigate } from 'react-router-dom';
 const DeleteRoute = () => {
-  const [routes, setRoutes] = useState(initialRoutes);
+  const navigate = useNavigate();
+  const [routes, setRoutes] = useState([]);
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState(null);
+  const [success, setSuccess] = useState(false);
+
+  // Lấy danh sách tuyến từ API
+  useEffect(() => {
+    fetch('https://api.metroticketingsystem.site/api/catalog/routes', {
+      headers: { 'Accept': 'application/json' }
+    })
+      .then(res => res.json())
+      .then(data => setRoutes(data.data.routes || []));
+  }, []);
 
   const handleOpen = (route) => {
     setSelected(route);
@@ -23,9 +28,23 @@ const DeleteRoute = () => {
     setSelected(null);
   };
 
-  const handleDelete = () => {
-    setRoutes(routes.filter((r) => r.id !== selected.id));
-    handleClose();
+  // Xóa tuyến qua API
+  const handleDelete = async () => {
+    if (!selected) return;
+    try {
+      const res = await fetch(`https://api.metroticketingsystem.site/api/catalog/routes/${selected.id}`, {
+        method: 'DELETE',
+        headers: {
+          'Accept': 'application/json'
+        }
+      });
+      if (!res.ok) throw new Error('Lỗi khi xóa tuyến!');
+      setRoutes(routes.filter((r) => r.id !== selected.id));
+      setSuccess(true);
+      handleClose();
+    } catch (err) {
+      alert('Không thể xóa tuyến. Vui lòng thử lại!');
+    }
   };
 
   return (
@@ -34,26 +53,32 @@ const DeleteRoute = () => {
         <Typography variant="h4" gutterBottom>
           Xóa tuyến Metro
         </Typography>
+         <Button
+                  variant="outlined"
+                  color="secondary"
+                  onClick={() => navigate('/metro-routes')}
+                  sx={{ mb: 2 }}
+                >
+                  Quay lại danh sách
+                </Button>
         <TableContainer component={Paper}>
           <Table>
             <TableHead>
               <TableRow>
+                <TableCell>Mã tuyến</TableCell>
                 <TableCell>Tên tuyến</TableCell>
-                <TableCell>Điểm đầu</TableCell>
-                <TableCell>Điểm cuối</TableCell>
-                <TableCell>Số ga</TableCell>
-                <TableCell>Trạng thái</TableCell>
+                <TableCell>Ảnh đại diện</TableCell>
+                <TableCell>Chiều dài (km)</TableCell>
                 <TableCell>Hành động</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {routes.map((route) => (
                 <TableRow key={route.id}>
-                  <TableCell>{route.routeName}</TableCell>
-                  <TableCell>{route.start}</TableCell>
-                  <TableCell>{route.end}</TableCell>
-                  <TableCell>{route.stations}</TableCell>
-                  <TableCell>{route.status}</TableCell>
+                  <TableCell>{route.code}</TableCell>
+                  <TableCell>{route.name}</TableCell>
+                  <TableCell>{route.thumbnailImageUrl}</TableCell>
+                  <TableCell>{route.lengthInKm}</TableCell>
                   <TableCell>
                     <IconButton color="error" onClick={() => handleOpen(route)}>
                       <DeleteIcon />
@@ -68,7 +93,7 @@ const DeleteRoute = () => {
         <Dialog open={open} onClose={handleClose}>
           <DialogTitle>Xác nhận xóa</DialogTitle>
           <DialogContent>
-            Bạn có chắc muốn xóa tuyến <b>{selected?.routeName}</b> không?
+            Bạn có chắc muốn xóa tuyến <b>{selected?.name}</b> không?
           </DialogContent>
           <DialogActions>
             <Button onClick={handleClose}>Hủy</Button>
@@ -77,6 +102,11 @@ const DeleteRoute = () => {
             </Button>
           </DialogActions>
         </Dialog>
+        <Snackbar open={success} autoHideDuration={3000} onClose={() => setSuccess(false)}>
+          <Alert onClose={() => setSuccess(false)} severity="success" sx={{ width: '100%' }}>
+            Xóa tuyến thành công!
+          </Alert>
+        </Snackbar>
       </CardContent>
     </Card>
   );
