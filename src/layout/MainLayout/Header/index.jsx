@@ -13,7 +13,7 @@ import { drawerWidth } from 'config.js';
 
 // assets
 import MenuTwoToneIcon from '@mui/icons-material/MenuTwoTone';
-import logo from 'assets/images/logo.svg';
+import logo from 'assets/images/mrt_train_banner.svg';
 
 // ==============================|| HEADER ||============================== //
 
@@ -26,9 +26,10 @@ const Header = ({ drawerToggle }) => {
         <Grid container justifyContent="space-between" alignItems="center">
           <Box sx={{ display: { xs: 'none', md: 'block' } }}>
             <Grid item>
-              {/* <Box mt={0.5}>
-                <img src={logo} alt="Logo" />
-              </Box> */}
+              <Box mt={0.5}>
+                {/* <img src={logo} alt="Logo" /> */}
+                <img src={logo} alt="Logo" width={180} height={50} />
+              </Box>
             </Grid>
           </Box>
           <Grid item>

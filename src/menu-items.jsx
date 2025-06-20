@@ -128,22 +128,22 @@ export default {
       type: 'group',
       icon: icons['AccountTreeOutlinedIcon'],
       children: [
-        {
-          id: 'util-icons',
-          title: 'Icons',
-          type: 'item',
-          url: 'https://mui.com/material-ui/material-icons/',
-          icon: icons['AppsOutlinedIcon'],
-          external: true,
-          target: true
-        },
-        {
-          id: 'util-typography',
-          title: 'Typography',
-          type: 'item',
-          url: '/utils/util-typography',
-          icon: icons['FormatColorTextOutlinedIcon']
-        }
+        // {
+        //   id: 'util-icons',
+        //   title: 'Icons',
+        //   type: 'item',
+        //   url: 'https://mui.com/material-ui/material-icons/',
+        //   icon: icons['AppsOutlinedIcon'],
+        //   external: true,
+        //   target: true
+        // },
+        // {
+        //   id: 'util-typography',
+        //   title: 'Typography',
+        //   type: 'item',
+        //   url: '/utils/util-typography',
+        //   icon: icons['FormatColorTextOutlinedIcon']
+        // }
       ]
     },
     {
@@ -152,23 +152,23 @@ export default {
       type: 'group',
       icon: icons['ContactSupportOutlinedIcon'],
       children: [
-        {
-          id: 'disabled-menu',
-          title: 'Disabled Menu',
-          type: 'item',
-          url: '#',
-          icon: icons['BlockOutlinedIcon'],
-          disabled: true
-        },
-        {
-          id: 'documentation',
-          title: 'Documentation',
-          type: 'item',
-          url: 'https://codedthemes.gitbook.io/materially-react-material-documentation/',
-          icon: icons['HelpOutlineOutlinedIcon'],
-          external: true,
-          target: true
-        }
+        // {
+        //   id: 'disabled-menu',
+        //   title: 'Disabled Menu',
+        //   type: 'item',
+        //   url: '#',
+        //   icon: icons['BlockOutlinedIcon'],
+        //   disabled: true
+        // },
+        // {
+        //   id: 'documentation',
+        //   title: 'Documentation',
+        //   type: 'item',
+        //   url: 'https://codedthemes.gitbook.io/materially-react-material-documentation/',
+        //   icon: icons['HelpOutlineOutlinedIcon'],
+        //   external: true,
+        //   target: true
+        // }
       ]
     }
   ]
