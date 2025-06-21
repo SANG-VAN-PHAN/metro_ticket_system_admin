@@ -40,6 +40,15 @@ const AuthRegister = ({ ...rest }) => {
   const [error, setError] = React.useState('');
   const navigate = useNavigate();
 
+  // Nếu đã đăng ký thì redirect
+  React.useEffect(() => {
+    const user = localStorage.getItem('user');
+    if (user) {
+      alert('Bạn đã đăng nhập tài khoản rồi!');
+      navigate('/'); // hoặc navigate tới trang dashboard
+    }
+  }, [navigate]);
+
   const handleClickShowPassword = () => {
     setShowPassword(!showPassword);
   };

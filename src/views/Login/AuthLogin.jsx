@@ -1,4 +1,6 @@
 import React from 'react';
+// import jwt_decode from "jwt-decode"; phiên bản cũ
+import { jwtDecode } from "jwt-decode"; // ✅ ĐÚNG với phiên bản mới
 
 // material-ui
 import { useTheme } from '@mui/material/styles';
@@ -16,7 +18,9 @@ import {
   InputAdornment,
   IconButton,
   Snackbar,
-  Alert
+  Alert,
+  Select,
+  MenuItem
 } from '@mui/material';
 
 //  third party
@@ -34,7 +38,17 @@ const AuthLogin = ({ ...rest }) => {
   const [showPassword, setShowPassword] = React.useState(false);
   const [success, setSuccess] = React.useState(false);
   const [error, setError] = React.useState('');
+  const [role, setRole] = React.useState('customer');
   const navigate = useNavigate();
+
+  // Nếu đã đăng nhập thì redirect
+  React.useEffect(() => {
+    const user = localStorage.getItem('user');
+    if (user) {
+      alert('Bạn đã đăng nhập tài khoản rồi!');
+      navigate('/'); // hoặc navigate tới trang dashboard
+    }
+  }, [navigate]);
 
   const handleClickShowPassword = () => {
     setShowPassword(!showPassword);
@@ -100,7 +114,7 @@ const AuthLogin = ({ ...rest }) => {
         onSubmit={async (values, { setSubmitting, setErrors }) => {
           setError('');
           try {
-            const res = await fetch('https://api.metroticketingsystem.site/api/user/Auth/login', {
+            const res = await fetch(`https://api.metroticketingsystem.site/api/user/Auth/${role}/login`, {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
@@ -119,9 +133,10 @@ const AuthLogin = ({ ...rest }) => {
               return;
             }
             const data = await res.json();
-            localStorage.setItem('user', JSON.stringify(data.user));
-            console.log('Login successful:', data);
-            
+            const decoded = jwtDecode(data.token);
+            localStorage.setItem('user', JSON.stringify(decoded));
+            console.log('Login successful:', decoded);
+
             setSuccess(true);
             setTimeout(() => navigate('/'), 1500);
           } catch (err) {
@@ -133,8 +148,23 @@ const AuthLogin = ({ ...rest }) => {
       >
         {({ errors, handleBlur, handleChange, handleSubmit, isSubmitting, touched, values }) => (
           <form noValidate onSubmit={handleSubmit} {...rest}>
+            <FormControl fullWidth sx={{ mt: 2 }}>
+              <InputLabel id="role-label">Role</InputLabel>
+              <Select
+                labelId="role-label"
+                id="role"
+                value={role}
+                label="Role"
+                onChange={(e) => setRole(e.target.value)}
+              >
+                <MenuItem value="customer">Customer</MenuItem>
+                <MenuItem value="staff">Staff</MenuItem>
+                <MenuItem value="Administrator">Administrator</MenuItem>
+              </Select>
+            </FormControl>
+
             <TextField
-            error={Boolean(touched.email && errors.email)}
+              error={Boolean(touched.email && errors.email)}
               fullWidth
               helperText={touched.email && errors.email}
               label="Email Address / Username"
@@ -165,7 +195,7 @@ const AuthLogin = ({ ...rest }) => {
                       onMouseDown={handleMouseDownPassword}
                       edge="end"
                       size="large"
-                   >
+                    >
                       {showPassword ? <Visibility /> : <VisibilityOff />}
                     </IconButton>
                   </InputAdornment>
@@ -192,7 +222,7 @@ const AuthLogin = ({ ...rest }) => {
               </Box>
             )}
 
-            <Box mt={2}>
+             <Box mt={2}>
               <Button color="primary" disabled={isSubmitting} fullWidth size="large" type="submit" variant="contained">
                 Log In
               </Button>

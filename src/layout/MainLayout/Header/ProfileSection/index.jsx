@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 // material-ui
 import { useTheme } from '@mui/material/styles';
@@ -15,7 +16,19 @@ import MeetingRoomTwoToneIcon from '@mui/icons-material/MeetingRoomTwoTone';
 // ==============================|| PROFILE SECTION ||============================== //
 
 const ProfileSection = () => {
+
+  const isLoggedIn = Boolean(localStorage.getItem('user'));
+  if (!isLoggedIn) return null;
+  
   const theme = useTheme();
+  const navigate = useNavigate(); 
+
+   const handleLogout = () => {
+    localStorage.removeItem('user');
+    // localStorage.removeItem('token');
+    setOpen(false);
+    navigate('/application/login'); // hoặc đường dẫn trang đăng nhập của bạn
+  };
 
   const [selectedIndex, setSelectedIndex] = React.useState(1);
   const [open, setOpen] = React.useState(false);
@@ -28,7 +41,16 @@ const ProfileSection = () => {
   const user = localStorage.getItem('user');
   if (user) {
     try {
-      setUserName(JSON.parse(user).name || '');
+      const userObj = JSON.parse(user);
+      if (userObj.FirstName && userObj.FirstName.trim() !== '') {
+        setUserName(userObj.FirstName);
+      } else if (userObj.LastName && userObj.LastName.trim() !== '') {
+        setUserName(userObj.LastName);
+      } else if (userObj.email) {
+        setUserName(userObj.email);
+      } else {
+        setUserName('');
+      }
     } catch {
       setUserName('');
     }
@@ -135,7 +157,7 @@ const ProfileSection = () => {
                     </ListItemIcon>
                     <ListItemText primary="Lock Screen" />
                   </ListItemButton>
-                  <ListItemButton selected={selectedIndex === 4}>
+                  <ListItemButton selected={selectedIndex === 4} onClick={handleLogout}>
                     <ListItemIcon>
                       <MeetingRoomTwoToneIcon />
                     </ListItemIcon>
