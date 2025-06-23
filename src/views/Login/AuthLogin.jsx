@@ -38,14 +38,16 @@ const AuthLogin = ({ ...rest }) => {
   const [showPassword, setShowPassword] = React.useState(false);
   const [success, setSuccess] = React.useState(false);
   const [error, setError] = React.useState('');
-  const [role, setRole] = React.useState('customer');
+  const [role, setRole] = React.useState('Administrator'); // Mặc định là Administrator
   const navigate = useNavigate();
 
   // Nếu đã đăng nhập thì redirect
   React.useEffect(() => {
     const user = localStorage.getItem('user');
+    console.log('user-role: ', user);
+    
     if (user) {
-      alert('Bạn đã đăng nhập tài khoản rồi!');
+      // alert('Bạn đã đăng nhập tài khoản rồi!');
       navigate('/'); // hoặc navigate tới trang dashboard
     }
   }, [navigate]);
@@ -135,7 +137,10 @@ const AuthLogin = ({ ...rest }) => {
             const data = await res.json();
             const decoded = jwtDecode(data.token);
             localStorage.setItem('user', JSON.stringify(decoded));
+            localStorage.setItem('role', decoded.roles); 
+            window.location.reload();
             console.log('Login successful:', decoded);
+            console.log('user-role: ', decoded.roles);
 
             setSuccess(true);
             setTimeout(() => navigate('/'), 1500);
@@ -157,9 +162,8 @@ const AuthLogin = ({ ...rest }) => {
                 label="Role"
                 onChange={(e) => setRole(e.target.value)}
               >
-                <MenuItem value="customer">Customer</MenuItem>
-                <MenuItem value="staff">Staff</MenuItem>
                 <MenuItem value="Administrator">Administrator</MenuItem>
+                <MenuItem value="Staff">Staff</MenuItem>
               </Select>
             </FormControl>
 

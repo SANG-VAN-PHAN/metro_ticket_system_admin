@@ -44,7 +44,7 @@ const AuthRegister = ({ ...rest }) => {
   React.useEffect(() => {
     const user = localStorage.getItem('user');
     if (user) {
-      alert('Bạn đã đăng nhập tài khoản rồi!');
+      // alert('Bạn đã đăng nhập tài khoản rồi!');
       navigate('/'); // hoặc navigate tới trang dashboard
     }
   }, [navigate]);

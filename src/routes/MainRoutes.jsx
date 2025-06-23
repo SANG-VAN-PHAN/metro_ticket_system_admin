@@ -15,6 +15,10 @@ const Feedback = Loadable(lazy(() => import('component/Feedback/Feedback')));
 const ViewTicket = Loadable(lazy(() => import('component/Ticket/ViewTicket')));
 const TransactionHistory = Loadable(lazy(() => import('component/TransactionHistory/TransactionHistory')));
 const CreatePromotion = Loadable(lazy(() => import('component/Promotion/CreatePromotion')));
+const StudentRequest = Loadable(lazy(() => import('component/StudentRequest/ViewStudentRequest')));
+
+// const CreateStudentRequest = Loadable(lazy(() => import('component/StudentRequest/CreateStudentRequest')));
+const DetailStudentRequest = Loadable(lazy(() => import('component/StudentRequest/DetailStudentRequest')));
 
 const CreateStaff = Loadable(lazy(() => import('component/Staff/CreateStaff')));
 const DeleteStaff = Loadable(lazy(() => import('component/Staff/DeleteStaff')));
@@ -56,6 +60,7 @@ const MainRoutes = {
     { path: '/ticket', element: <ViewTicket /> },
     { path: '/transaction-history', element: <TransactionHistory /> },
     { path: '/promotion/create', element: <CreatePromotion /> },
+    { path: '/student-request', element: <StudentRequest /> },
 
     { path: '/stations/create', element: <CreateStation /> },
     { path: '/stations/delete', element: <DeleteStation /> },
@@ -77,8 +82,11 @@ const MainRoutes = {
     // Thêm các route mới cho bus routes
     { path: '/bus-routes/create', element: <CreateBusRoute /> },
     { path: '/bus-routes/delete', element: <DeleteBusRoute /> },
-    { path: '/bus-routes/update/:id', element: <UpdateBusRoute /> }
+    { path: '/bus-routes/update/:id', element: <UpdateBusRoute /> },
 
+    // Thêm các route mới cho student request
+    // { path: '/student-request/create', element: <CreateStudentRequest /> },
+    { path: '/student-request/:id', element: <DetailStudentRequest /> }
   ]
 };
 

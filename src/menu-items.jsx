@@ -24,6 +24,14 @@ const icons = {
 // ==============================|| MENU ITEMS ||============================== //
 
 // eslint-disable-next-line
+
+let role = '';
+try {
+  role = localStorage.getItem('role') || '';
+} catch {
+  role = '';
+}
+
 export default {
   items: [
     {
@@ -98,6 +106,17 @@ export default {
   url: '/bus-routes',
   icon: icons['ChromeReaderModeOutlinedIcon']
 },
+...(role === 'Staff'
+          ? [
+              {
+                id: 'student-request',
+                title: 'Student Request',
+                type: 'item',
+                url: '/student-request',
+                icon: icons['ChromeReaderModeOutlinedIcon'],
+              }
+            ]
+          : []),
         {
           id: 'auth',
           title: 'Authentication',
