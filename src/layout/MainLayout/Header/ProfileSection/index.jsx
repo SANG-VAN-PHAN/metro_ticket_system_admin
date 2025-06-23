@@ -25,9 +25,10 @@ const ProfileSection = () => {
 
    const handleLogout = () => {
     localStorage.removeItem('user');
+    localStorage.removeItem('role');
     // localStorage.removeItem('token');
     setOpen(false);
-    navigate('/application/login'); // hoặc đường dẫn trang đăng nhập của bạn
+    navigate('/application/login');
   };
 
   const [selectedIndex, setSelectedIndex] = React.useState(1);
