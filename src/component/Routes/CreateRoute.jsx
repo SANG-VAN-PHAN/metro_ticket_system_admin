@@ -8,9 +8,9 @@ const CreateRoute = () => {
   const [form, setForm] = useState({
     code: '',
     name: '',
-    thumbnailImageUrl: '',
     lengthInKm: ''
   });
+  const [selectedFile, setSelectedFile] = useState(null);
   const [open, setOpen] = useState(false);
   const [error, setError] = useState('');
 
@@ -18,55 +18,54 @@ const CreateRoute = () => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+  const handleFileChange = (e) => {
+    setSelectedFile(e.target.files[0]);
+  };
+
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  setError('');
-  if (!form.code || !form.name || !form.lengthInKm) {
-    setError('Vui lòng nhập đầy đủ thông tin bắt buộc!');
-    return;
-  }
+    e.preventDefault();
+    setError('');
+    if (!form.code || !form.name || !form.lengthInKm) {
+      setError('Vui lòng nhập đầy đủ thông tin bắt buộc!');
+      return;
+    }
 
-  // Tạo body dạng x-www-form-urlencoded
-  const formBody = new URLSearchParams({
-    id: uuidv4(),
-    code: form.code,
-    name: form.name,
-    thumbnailImageUrl: form.thumbnailImageUrl || 'empty',
-    lengthInKm: form.lengthInKm
-  }).toString();
+    const formData = new FormData();
+    formData.append('id', uuidv4());
+    formData.append('code', form.code);
+    formData.append('name', form.name);
+    formData.append('lengthInKm', form.lengthInKm);
+    if (selectedFile) {
+      formData.append('thumbnailImage', selectedFile);
+    }
 
-  try {
-    const res = await fetch('https://api.metroticketingsystem.site/api/catalog/routes', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'Accept': 'application/json'
-      },
-      body: formBody
-    });
-    if (!res.ok) throw new Error('Lỗi khi thêm tuyến!');
-    setOpen(true);
-    setForm({
-      code: '',
-      name: '',
-      thumbnailImageUrl: '',
-      lengthInKm: ''
-    });
-  } catch (err) {
-    setError('Không thể thêm tuyến. Vui lòng thử lại!');
-  }
-};
+    try {
+      const res = await fetch('https://api.metroticketingsystem.site/api/catalog/routes', {
+        method: 'POST',
+        body: formData
+      });
+      if (!res.ok) throw new Error('Lỗi khi thêm tuyến!');
+      setOpen(true);
+      setForm({
+        code: '',
+        name: '',
+        lengthInKm: ''
+      });
+      setSelectedFile(null);
+    } catch (err) {
+      setError('Không thể thêm tuyến. Vui lòng thử lại!');
+    }
+  };
 
   const handleClose = () => setOpen(false);
 
   return (
     <Card>
       <CardContent>
-        
         <Typography variant="h4" gutterBottom>
           Thêm tuyến Metro mới
         </Typography>
-         <Button
+        <Button
           variant="outlined"
           color="secondary"
           onClick={() => navigate('/metro-routes')}
@@ -93,15 +92,19 @@ const CreateRoute = () => {
             margin="normal"
             required
           />
-          <TextField
-            label="Ảnh đại diện (ThumbnailImageUrl)"
-            name="thumbnailImageUrl"
-            value={form.thumbnailImageUrl}
-            onChange={handleChange}
-            fullWidth
-            margin="normal"
-            placeholder="https://..."
-          />
+          <Button
+            variant="outlined"
+            component="label"
+            sx={{ mt: 2, mb: 2 }}
+          >
+            {selectedFile ? selectedFile.name : "Chọn ảnh đại diện"}
+            <input
+              type="file"
+              accept="image/*"
+              hidden
+              onChange={handleFileChange}
+            />
+          </Button>
           <TextField
             label="Chiều dài (km)"
             name="lengthInKm"

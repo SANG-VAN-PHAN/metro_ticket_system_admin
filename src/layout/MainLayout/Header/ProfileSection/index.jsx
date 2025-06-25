@@ -28,7 +28,8 @@ const ProfileSection = () => {
     localStorage.removeItem('role');
     // localStorage.removeItem('token');
     setOpen(false);
-    navigate('/application/login');
+    navigate('/');
+    window.location.reload();
   };
 
   const [selectedIndex, setSelectedIndex] = React.useState(1);
