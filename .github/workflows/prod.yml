@@ -42,5 +42,4 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           port: ${{ secrets.VPS_SSH_PORT }}
           script: |
-            # reload nginx so it picks up the new files
             sudo systemctl reload nginx
