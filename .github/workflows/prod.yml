@@ -1,39 +1,58 @@
-name: Node - SSH deploy
+name: Deploy React App to VPS
 
-# Controls when the action will run.
 on:
-  # Triggers the workflow on push or pull request events but only for the master branch
   push:
     branches:
       - main
 
 jobs:
-  SFTP-deploy:
-    name: 🎉 Deploy
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 🚚 Get latest code
-        uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-      - name: Use Node.js 20
-        uses: actions/setup-node@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
         with:
-          node-version: '20.x'
+          node-version: '16'
 
-      - name: 🔨 Build Project
-        run: |
-          yarn
-          yarn build
+      - name: Install dependencies
+        run: npm ci
 
-      - name: 📂 Deploy to Server
-        uses: easingthemes/ssh-deploy@main
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.SERVER_SSH_KEY }}
-          # ARGS: "-rltgoDzvO --delete"
-          SOURCE: 'dist/'
-          REMOTE_HOST: 154.49.240.71
-          REMOTE_USER: u778408432
-          REMOTE_PORT: '65002'
-          TARGET: domains/codedthemes.com/public_html/demos/admin-templates/materially/react/free
-          EXCLUDE: '/dist/, /node_modules/'
+      - name: Build
+        run: npm run build
+
+      # 1) Clean out the old root contents
+      - name: Clean remote VPS
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_SSH_PORT }}
+          script: |
+            sudo rm -rf ${{ secrets.DEPLOY_PATH }}/*
+
+      # 2) Copy the dist contents directly into the site root
+      - name: Copy files to VPS
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_SSH_PORT }}
+          strip_components: 1
+          source: 'dist/' # everything inside dist/
+          target: ${{ secrets.DEPLOY_PATH }} # your site root
+
+      - name: Reload Nginx on VPS
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_SSH_PORT }}
+          script: |
+            sudo systemctl reload nginx
