@@ -169,7 +169,7 @@ const AuthLogin = ({ ...rest }) => {
             setSuccess(true);
             // setTimeout(() => navigate('/'), 1500);
             setTimeout(() => {
-  navigate('/dashboard/default', { 
+  navigate('/', { 
     replace: true,
     state: { forceRefresh: true }
   });
