@@ -127,13 +127,35 @@ const AuthLogin = ({ ...rest }) => {
                 password: values.password
               })
             });
+            // if (!res.ok) {
+            //   const errMsg = await res.text();
+            //   setErrors({ submit: 'Đăng nhập thất bại. ' + errMsg });
+            //   setError('Đăng nhập thất bại. ' + errMsg);
+            //   setSubmitting(false);
+            //   return;
+            // }
+
             if (!res.ok) {
-              const errMsg = await res.text();
-              setErrors({ submit: 'Đăng nhập thất bại. ' + errMsg });
-              setError('Đăng nhập thất bại. ' + errMsg);
-              setSubmitting(false);
-              return;
-            }
+  let errorMessage = 'Đăng nhập thất bại';
+  
+  try {
+    const errorText = await res.text();
+    // Kiểm tra xem có phải JSON không
+    if (errorText.startsWith('{')) {
+      const errorData = JSON.parse(errorText);
+      errorMessage = errorData.message || errorMessage;
+    } else {
+      errorMessage = errorText || errorMessage;
+    }
+  } catch (parseError) {
+    errorMessage = 'Email hoặc mật khẩu không chính xác!';
+  }
+  
+  setErrors({ submit: errorMessage });
+  setError(errorMessage);
+  setSubmitting(false);
+  return;
+}
             const data = await res.json();
             const decoded = jwtDecode(data.token);
             localStorage.setItem('token', data.token);
