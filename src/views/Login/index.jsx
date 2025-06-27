@@ -9,7 +9,7 @@ import { Card, CardContent, Typography, Grid } from '@mui/material';
 import AuthLogin from './AuthLogin';
 
 // assets
-import Logo from 'assets/images/logo-dark.svg';
+import Logo from 'assets/images/mrt_train_banner.svg';
 
 // ==============================|| LOGIN ||============================== //
 
@@ -52,7 +52,7 @@ const Login = () => {
                   </Grid>
                   <Grid item>
                     <RouterLink to="/">
-                      <img alt="Auth method" src={Logo} />
+                      <img alt="Auth method" src={Logo} style={{ width: 'auto', height: '90px' }} />
                     </RouterLink>
                   </Grid>
                 </Grid>

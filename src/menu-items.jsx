@@ -57,6 +57,10 @@ export default {
       type: 'group',
       icon: icons['NavigationOutlinedIcon'],
       children: [
+
+        // Menu cho Administrator - hiện tất cả trừ Student Request
+        ...(role === 'Administrator'
+          ? [
         {
           id: 'metro-routes',
           title: 'Routes',
@@ -105,7 +109,11 @@ export default {
   type: 'item',
   url: '/bus-routes',
   icon: icons['ChromeReaderModeOutlinedIcon']
-},
+}
+ ]
+          : []),
+
+          
 ...(role === 'Staff'
           ? [
               {
