@@ -174,7 +174,7 @@ const AuthLogin = ({ ...rest }) => {
     state: { forceRefresh: true }
   });
   // Force re-render menu
-  window.location.reload();
+  // window.location.reload();
 }, 1000);
           } catch (err) {
             setErrors({ submit: 'Không thể đăng nhập. Vui lòng thử lại!' });
