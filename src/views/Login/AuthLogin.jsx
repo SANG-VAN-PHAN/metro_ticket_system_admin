@@ -43,10 +43,10 @@ const AuthLogin = ({ ...rest }) => {
 
   // Nếu đã đăng nhập thì redirect
   React.useEffect(() => {
-    const user = localStorage.getItem('user');
-    console.log('user-role: ', user);
-    
-    if (user) {
+    const token = localStorage.getItem('token');
+    console.log('user-token: ', token);
+
+    if (token) {
       // alert('Bạn đã đăng nhập tài khoản rồi!');
       navigate('/'); // hoặc navigate tới trang dashboard
     }
@@ -136,10 +136,12 @@ const AuthLogin = ({ ...rest }) => {
             }
             const data = await res.json();
             const decoded = jwtDecode(data.token);
+            localStorage.setItem('token', data.token);
             localStorage.setItem('user', JSON.stringify(decoded));
             localStorage.setItem('role', decoded.roles); 
             window.location.reload();
             console.log('Login successful:', decoded);
+            console.log('Token saved:', data.token);
             console.log('user-role: ', decoded.roles);
 
             setSuccess(true);

@@ -1,4 +1,5 @@
 import React, { lazy } from 'react';
+import { Navigate } from 'react-router-dom';
 
 // project import
 import MainLayout from 'layout/MainLayout';
@@ -42,6 +43,26 @@ const DeleteBusRoute = Loadable(lazy(() => import('component/BusRoutes/DeleteBus
 const UpdateBusRoute = Loadable(lazy(() => import('component/BusRoutes/UpdateBusRoute')));
 
 
+// Auth wrapper component
+const ProtectedRoute = ({ children }) => {
+  const isAuthenticated = () => {
+    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+    console.log('ProtectedRoute - Token found:', !!token, 'Token value:', token);
+    return !!token;
+  };
+
+  const authenticated = isAuthenticated();
+  console.log('ProtectedRoute - Is authenticated:', authenticated);
+  
+  if (!authenticated) {
+    console.log('ProtectedRoute - Redirecting to login');
+    return <Navigate to="/application/login" replace />;
+  }
+  
+  console.log('ProtectedRoute - Rendering protected content');
+  return children;
+};
+
 // ==============================|| MAIN ROUTES ||============================== //
 
 const MainRoutes = {
@@ -52,41 +73,41 @@ const MainRoutes = {
     { path: '/dashboard/default', element: <DashboardDefault />},
     { path: '/utils/util-typography', element: <UtilsTypography /> },
     { path: '/sample-page', element: <SamplePage /> },
-    { path: '/bus-routes', element: <ViewBusRoutes /> },
-    { path: '/staff', element: <ViewStaff /> },
-    { path: '/metro-routes', element: <ViewRoutes /> },
-    { path: '/stations', element: <ViewStations /> },
-    { path: '/feedback', element: <Feedback /> },
-    { path: '/ticket', element: <ViewTicket /> },
-    { path: '/transaction-history', element: <TransactionHistory /> },
-    { path: '/promotion/create', element: <CreatePromotion /> },
-    { path: '/student-request', element: <StudentRequest /> },
+    { path: '/bus-routes', element: <ProtectedRoute><ViewBusRoutes /></ProtectedRoute> },
+    { path: '/staff', element: <ProtectedRoute><ViewStaff /></ProtectedRoute> },
+    { path: '/metro-routes', element: <ProtectedRoute><ViewRoutes /></ProtectedRoute> },
+    { path: '/stations', element: <ProtectedRoute><ViewStations /></ProtectedRoute> },
+    { path: '/feedback', element: <ProtectedRoute><Feedback /></ProtectedRoute> },
+    { path: '/ticket', element: <ProtectedRoute><ViewTicket /></ProtectedRoute> },
+    { path: '/transaction-history', element: <ProtectedRoute><TransactionHistory /></ProtectedRoute> },
+    { path: '/promotion/create', element: <ProtectedRoute><CreatePromotion /></ProtectedRoute> },
+    { path: '/student-request', element: <ProtectedRoute><StudentRequest /></ProtectedRoute> },
 
-    { path: '/stations/create', element: <CreateStation /> },
-    { path: '/stations/delete', element: <DeleteStation /> },
-    { path: '/stations/update', element: <UpdateStation /> },
+    { path: '/stations/create', element: <ProtectedRoute><CreateStation /></ProtectedRoute> },
+    { path: '/stations/delete', element: <ProtectedRoute><DeleteStation /></ProtectedRoute> },
+    { path: '/stations/update', element: <ProtectedRoute><UpdateStation /></ProtectedRoute> },
 
-    { path: '/metro-routes/create', element: <CreateRoute /> },
-    { path: '/metro-routes/delete', element: <DeleteRoute /> },
-    { path: '/metro-routes/update', element: <UpdateRoute /> },
-    { path: '/metro-routes/:id', element: <DetailRoute /> },
+    { path: '/metro-routes/create', element: <ProtectedRoute><CreateRoute /></ProtectedRoute> },
+    { path: '/metro-routes/delete', element: <ProtectedRoute><DeleteRoute /></ProtectedRoute> },
+    { path: '/metro-routes/update', element: <ProtectedRoute><UpdateRoute /></ProtectedRoute> },
+    { path: '/metro-routes/:id', element: <ProtectedRoute><DetailRoute /></ProtectedRoute> },
 
-    { path: '/ticket/create', element: <CreateTicket /> },
-    { path: '/ticket/delete', element: <DeleteTicket /> },
-    { path: '/ticket/update', element: <UpdateTicket /> },
+    { path: '/ticket/create', element: <ProtectedRoute><CreateTicket /></ProtectedRoute> },
+    { path: '/ticket/delete', element: <ProtectedRoute><DeleteTicket /></ProtectedRoute> },
+    { path: '/ticket/update', element: <ProtectedRoute><UpdateTicket /></ProtectedRoute> },
 
-    { path: '/staff/create', element: <CreateStaff /> },
-    { path: '/staff/delete', element: <DeleteStaff /> },
-    { path: '/staff/update', element: <UpdateStaff /> },
+    { path: '/staff/create', element: <ProtectedRoute><CreateStaff /></ProtectedRoute> },
+    { path: '/staff/delete', element: <ProtectedRoute><DeleteStaff /></ProtectedRoute> },
+    { path: '/staff/update', element: <ProtectedRoute><UpdateStaff /></ProtectedRoute> },
 
     // Thêm các route mới cho bus routes
-    { path: '/bus-routes/create', element: <CreateBusRoute /> },
-    { path: '/bus-routes/delete', element: <DeleteBusRoute /> },
-    { path: '/bus-routes/update/:id', element: <UpdateBusRoute /> },
+    { path: '/bus-routes/create', element: <ProtectedRoute><CreateBusRoute /></ProtectedRoute> },
+    { path: '/bus-routes/delete', element: <ProtectedRoute><DeleteBusRoute /></ProtectedRoute> },
+    { path: '/bus-routes/update/:id', element: <ProtectedRoute><UpdateBusRoute /></ProtectedRoute> },
 
     // Thêm các route mới cho student request
     // { path: '/student-request/create', element: <CreateStudentRequest /> },
-    { path: '/student-request/:id', element: <DetailStudentRequest /> }
+    { path: '/student-request/:id', element: <ProtectedRoute><DetailStudentRequest /></ProtectedRoute> }
   ]
 };
 

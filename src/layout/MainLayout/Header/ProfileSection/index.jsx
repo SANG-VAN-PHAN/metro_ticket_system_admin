@@ -26,7 +26,7 @@ const ProfileSection = () => {
    const handleLogout = () => {
     localStorage.removeItem('user');
     localStorage.removeItem('role');
-    // localStorage.removeItem('token');
+    localStorage.removeItem('token');
     setOpen(false);
     navigate('/');
     window.location.reload();
