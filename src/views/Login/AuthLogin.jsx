@@ -161,13 +161,21 @@ const AuthLogin = ({ ...rest }) => {
             localStorage.setItem('token', data.token);
             localStorage.setItem('user', JSON.stringify(decoded));
             localStorage.setItem('role', decoded.roles); 
-            window.location.reload();
+            // window.location.reload();
             console.log('Login successful:', decoded);
             console.log('Token saved:', data.token);
             console.log('user-role: ', decoded.roles);
 
             setSuccess(true);
-            setTimeout(() => navigate('/'), 1500);
+            // setTimeout(() => navigate('/'), 1500);
+            setTimeout(() => {
+  navigate('/dashboard/default', { 
+    replace: true,
+    state: { forceRefresh: true }
+  });
+  // Force re-render menu
+  window.location.reload();
+}, 1000);
           } catch (err) {
             setErrors({ submit: 'Không thể đăng nhập. Vui lòng thử lại!' });
             setError('Không thể đăng nhập. Vui lòng thử lại!');
