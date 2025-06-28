@@ -89,20 +89,20 @@ export default {
     url: '/ticket',
     icon: icons['ChromeReaderModeOutlinedIcon']
   },
-  {
-  id: 'transaction-history',
-  title: 'Transaction History',
-  type: 'item',
-  url: '/transaction-history',
-  icon: icons['ChromeReaderModeOutlinedIcon']
-},
-{
-  id: 'promotion',
-  title: 'Promotion',
-  type: 'item',
-  url: '/promotion/create',
-  icon: icons['ChromeReaderModeOutlinedIcon']
-},
+//   {
+//   id: 'transaction-history',
+//   title: 'Transaction History',
+//   type: 'item',
+//   url: '/transaction-history',
+//   icon: icons['ChromeReaderModeOutlinedIcon']
+// },
+// {
+//   id: 'promotion',
+//   title: 'Promotion',
+//   type: 'item',
+//   url: '/promotion/create',
+//   icon: icons['ChromeReaderModeOutlinedIcon']
+// },
 {
   id: 'bus-routes',
   title: 'Bus Routes',
@@ -113,7 +113,7 @@ export default {
  ]
           : []),
 
-          
+
 ...(role === 'Staff'
           ? [
               {
