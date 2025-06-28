@@ -215,9 +215,9 @@ const MainRoutes = {
   element: <MainLayout />,
   children: [
     // Public routes (accessible without login)
-    { path: '/', element: <DashboardDefault /> },
-    { path: '/dashboard/default', element: <DashboardDefault /> },
-    
+    { path: '/', element: <ProtectedRoute><DashboardDefault /></ProtectedRoute> },
+    { path: '/dashboard/default', element: <ProtectedRoute><DashboardDefault /></ProtectedRoute> },
+
     // Routes accessible by all authenticated users
     { path: '/utils/util-typography', element: <ProtectedRoute><UtilsTypography /></ProtectedRoute> },
     { path: '/sample-page', element: <ProtectedRoute><SamplePage /></ProtectedRoute> },
