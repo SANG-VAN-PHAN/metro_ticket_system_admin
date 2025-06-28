@@ -1,246 +1,535 @@
-// import React, { useState, useEffect } from 'react';
-// import { useParams, Link } from 'react-router-dom';
-// import {
-// Card, CardContent, Typography, Button, Stack, Chip, Paper, List, ListItem, ListItemText,
-// CircularProgress, Dialog, DialogTitle, DialogContent, DialogActions, TextField, MenuItem
-// } from '@mui/material';
+// // import React, { useState, useEffect } from 'react';
+// // import { useParams, Link } from 'react-router-dom';
+// // import {
+// // Card, CardContent, Typography, Button, Stack, Chip, Paper, List, ListItem, ListItemText,
+// // CircularProgress, Dialog, DialogTitle, DialogContent, DialogActions, TextField, MenuItem
+// // } from '@mui/material';
 
-// const statusColor = (status) => {
-// switch (status) {
-// case 'Đang hoạt động':
-// return 'success';
-// case 'Đang xây dựng':
-// return 'warning';
-// case 'Đang quy hoạch':
-// return 'default';
-// default:
-// return 'default';
-// }
-// };
+// // const statusColor = (status) => {
+// // switch (status) {
+// // case 'Đang hoạt động':
+// // return 'success';
+// // case 'Đang xây dựng':
+// // return 'warning';
+// // case 'Đang quy hoạch':
+// // return 'default';
+// // default:
+// // return 'default';
+// // }
+// // };
 
-// const DetailRoute = () => {
-// const { id } = useParams();
-// const [route, setRoute] = useState(null);
-// const [stations, setStations] = useState([]);
-// const [loading, setLoading] = useState(true);
+// // const DetailRoute = () => {
+// // const { id } = useParams();
+// // const [route, setRoute] = useState(null);
+// // const [stations, setStations] = useState([]);
+// // const [loading, setLoading] = useState(true);
 
-// // Dialog state
-// const [openDialog, setOpenDialog] = useState(false);
-// const [stationList, setStationList] = useState([]);
-// const [selectedStationId, setSelectedStationId] = useState('');
-// const [distance, setDistance] = useState('');
+// // // Dialog state
+// // const [openDialog, setOpenDialog] = useState(false);
+// // const [stationList, setStationList] = useState([]);
+// // const [selectedStationId, setSelectedStationId] = useState('');
+// // const [distance, setDistance] = useState('');
 
-// // Lấy thông tin route và danh sách station của route
-// useEffect(() => {
-// fetch(`https://api.metroticketingsystem.site/api/catalog/routes/${id}`, {
-// headers: { 'Accept': 'application/json' }
-// })
-// .then(res => res.json())
-// .then(data => {
-// setRoute(data.data);
-// setStations(data.data.stations || []);
-// setLoading(false);
-// })
-// .catch(() => setLoading(false));
-// }, [id]);
+// // // Lấy thông tin route và danh sách station của route
+// // useEffect(() => {
+// // fetch(`https://api.metroticketingsystem.site/api/catalog/routes/${id}`, {
+// // headers: { 'Accept': 'application/json' }
+// // })
+// // .then(res => res.json())
+// // .then(data => {
+// // setRoute(data.data);
+// // setStations(data.data.stations || []);
+// // setLoading(false);
+// // })
+// // .catch(() => setLoading(false));
+// // }, [id]);
 
-// // Lấy danh sách tất cả các station (dùng cho select)
-// useEffect(() => {
-// fetch('https://api.metroticketingsystem.site/api/catalog/Stations', {
-// headers: { 'Accept': 'application/json' }
-// })
-// .then(res => res.json())
-// .then(data => {
-// setStationList(data.data.stations || []);
-// });
-// }, []);
+// // // Lấy danh sách tất cả các station (dùng cho select)
+// // useEffect(() => {
+// // fetch('https://api.metroticketingsystem.site/api/catalog/Stations', {
+// // headers: { 'Accept': 'application/json' }
+// // })
+// // .then(res => res.json())
+// // .then(data => {
+// // setStationList(data.data.stations || []);
+// // });
+// // }, []);
 
-// // Thêm station đã chọn vào tuyến
-// const handleAddStation = async () => {
-// if (!selectedStationId) return;
-// try {
-// // 1. Tạo stationRoutes mới cho route
-// let stationRoutes = stations.map((st, idx) => ({
-// stationId: st.id || st.stationId,
-// routeId: id,
-// order: idx + 1,
-// distanceToNext:
-// idx === stations.length - 1 && stations.length > 0
-// ? (distance ? parseFloat(distance) : 0)
-// : st.distanceToNext || 0
-// }));
+// // // Thêm station đã chọn vào tuyến
+// // const handleAddStation = async () => {
+// // if (!selectedStationId) return;
+// // try {
+// // // 1. Tạo stationRoutes mới cho route
+// // let stationRoutes = stations.map((st, idx) => ({
+// // stationId: st.id || st.stationId,
+// // routeId: id,
+// // order: idx + 1,
+// // distanceToNext:
+// // idx === stations.length - 1 && stations.length > 0
+// // ? (distance ? parseFloat(distance) : 0)
+// // : st.distanceToNext || 0
+// // }));
 
-//   // Thêm station mới vào cuối, distanceToNext luôn là 0
-//   stationRoutes.push({
-//     stationId: selectedStationId,
-//     routeId: id,
-//     order: stations.length + 1,
-//     distanceToNext: 0
-//   });
+// //   // Thêm station mới vào cuối, distanceToNext luôn là 0
+// //   stationRoutes.push({
+// //     stationId: selectedStationId,
+// //     routeId: id,
+// //     order: stations.length + 1,
+// //     distanceToNext: 0
+// //   });
 
-//   // 2. Gọi API đúng endpoint và body
-//   const resRoute = await fetch('https://api.metroticketingsystem.site/api/catalog/Routes/station-route', {
-//     method: 'PUT',
-//     headers: {
-//       'Content-Type': 'application/json',
-//       'Accept': 'application/json'
-//     },
-//     body: JSON.stringify({
-//       route: {
-//         routeId: id,
-//         stationRoutes: stationRoutes
-//       }
-//     })
-//   });
-//   if (!resRoute.ok) throw new Error('Lỗi khi cập nhật tuyến!');
+// //   // 2. Gọi API đúng endpoint và body
+// //   const resRoute = await fetch('https://api.metroticketingsystem.site/api/catalog/Routes/station-route', {
+// //     method: 'PUT',
+// //     headers: {
+// //       'Content-Type': 'application/json',
+// //       'Accept': 'application/json'
+// //     },
+// //     body: JSON.stringify({
+// //       route: {
+// //         routeId: id,
+// //         stationRoutes: stationRoutes
+// //       }
+// //     })
+// //   });
+// //   if (!resRoute.ok) throw new Error('Lỗi khi cập nhật tuyến!');
 
-//   // Reload lại danh sách station trong tuyến
-//   const addedStation = stationList.find(st => st.id === selectedStationId);
-//   // setStations([
-//   //   ...stations.map((st, idx) =>
-//   //     idx === stations.length - 1 && stations.length > 0
-//   //       ? { ...st, distanceToNext: distance ? parseFloat(distance) : 0 }
-//   //       : st
-//   //   ),
-//   //   {
-//   //     id: addedStation.id,
-//   //     name: addedStation.name,
-//   //     distanceToNext: 0
-//   //   }
-//   // ]);
+// //   // Reload lại danh sách station trong tuyến
+// //   const addedStation = stationList.find(st => st.id === selectedStationId);
+// //   // setStations([
+// //   //   ...stations.map((st, idx) =>
+// //   //     idx === stations.length - 1 && stations.length > 0
+// //   //       ? { ...st, distanceToNext: distance ? parseFloat(distance) : 0 }
+// //   //       : st
+// //   //   ),
+// //   //   {
+// //   //     id: addedStation.id,
+// //   //     name: addedStation.name,
+// //   //     distanceToNext: 0
+// //   //   }
+// //   // ]);
 
-//   fetch(`https://api.metroticketingsystem.site/api/catalog/routes/${id}`, {
-//   headers: { 'Accept': 'application/json' }
-// })
-//   .then(res => res.json())
-//   .then(data => {
-//     setRoute(data.data);
-//     setStations(data.data.stations || []);
-//     // setLoading(false);
-//     console.log("Route station data:", data.data.stations);
-//   });
+// //   fetch(`https://api.metroticketingsystem.site/api/catalog/routes/${id}`, {
+// //   headers: { 'Accept': 'application/json' }
+// // })
+// //   .then(res => res.json())
+// //   .then(data => {
+// //     setRoute(data.data);
+// //     setStations(data.data.stations || []);
+// //     // setLoading(false);
+// //     console.log("Route station data:", data.data.stations);
+// //   });
 
-//   setSelectedStationId('');
-//   setDistance('');
-//   setOpenDialog(false);
-// } catch (err) {
-//   alert('Không thể thêm nhà ga. Vui lòng thử lại!');
-// }
+// //   setSelectedStationId('');
+// //   setDistance('');
+// //   setOpenDialog(false);
+// // } catch (err) {
+// //   alert('Không thể thêm nhà ga. Vui lòng thử lại!');
+// // }
 
-// };
+// // };
 
-// if (loading) return <CircularProgress />;
-// if (!route) {
-// return (
-// <Card>
-// <CardContent>
-// <Typography variant="h5" color="error">Không tìm thấy tuyến đường!</Typography>
-// <Button component={Link} to="/metro-routes" variant="contained" sx={{ mt: 2 }}>
-// Quay lại danh sách
-// </Button>
-// </CardContent>
-// </Card>
-// );
-// }
+// // if (loading) return <CircularProgress />;
+// // if (!route) {
+// // return (
+// // <Card>
+// // <CardContent>
+// // <Typography variant="h5" color="error">Không tìm thấy tuyến đường!</Typography>
+// // <Button component={Link} to="/metro-routes" variant="contained" sx={{ mt: 2 }}>
+// // Quay lại danh sách
+// // </Button>
+// // </CardContent>
+// // </Card>
+// // );
+// // }
 
-// return (
-// <Card>
-// <CardContent>
-// <Typography variant="h4" gutterBottom>
-// Chi tiết tuyến Metro
-// </Typography>
-// <Typography variant="h6" gutterBottom>
-// {route.name}
-// </Typography>
-// <Stack spacing={1} sx={{ mb: 2 }}>
-// <Typography>Mã tuyến: <b>{route.code}</b></Typography>
-// <Typography>Chiều dài: <b>{route.lengthInKm} km</b></Typography>
-// <Typography component="span">
-// Trạng thái: <Chip label={route.status || 'Chưa rõ'} color={statusColor(route.status)} />
-// </Typography>
-// </Stack>
-// <Stack direction="row" spacing={2} sx={{ mb: 1 }}>
-// <Typography variant="subtitle1" sx={{ mt: 1 }}>
-// Danh sách nhà ga:
-// </Typography>
-// <Button variant="contained" onClick={() => setOpenDialog(true)}>
-// Thêm nhà ga
-// </Button>
-// </Stack>
-// <Paper variant="outlined" sx={{ mb: 2 }}>
-// <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
-// {stations.map((station, index) => (
-// <React.Fragment key={station.id || station.stationId || station.name}>
-// {index > 0 && (
-// <ListItem sx={{ pl: 6, pr: 6 }}>
-// <Typography color="text.secondary" fontStyle="italic">
-// Khoảng cách đến ga trước: {stations[index - 1]?.distanceToNext ?? 0} km
-// </Typography>
-// </ListItem>
-// )}
-// <ListItem>
-// <ListItemText
-//   primary={`${index + 1}. ${station.name || station.stationName}`}
-// />
-// </ListItem>
-// </React.Fragment>
-// ))}
-// </List>
-// </Paper>
-// <Button component={Link} to="/metro-routes" variant="outlined">
-// Quay lại danh sách
-// </Button>
+// // return (
+// // <Card>
+// // <CardContent>
+// // <Typography variant="h4" gutterBottom>
+// // Chi tiết tuyến Metro
+// // </Typography>
+// // <Typography variant="h6" gutterBottom>
+// // {route.name}
+// // </Typography>
+// // <Stack spacing={1} sx={{ mb: 2 }}>
+// // <Typography>Mã tuyến: <b>{route.code}</b></Typography>
+// // <Typography>Chiều dài: <b>{route.lengthInKm} km</b></Typography>
+// // <Typography component="span">
+// // Trạng thái: <Chip label={route.status || 'Chưa rõ'} color={statusColor(route.status)} />
+// // </Typography>
+// // </Stack>
+// // <Stack direction="row" spacing={2} sx={{ mb: 1 }}>
+// // <Typography variant="subtitle1" sx={{ mt: 1 }}>
+// // Danh sách nhà ga:
+// // </Typography>
+// // <Button variant="contained" onClick={() => setOpenDialog(true)}>
+// // Thêm nhà ga
+// // </Button>
+// // </Stack>
+// // <Paper variant="outlined" sx={{ mb: 2 }}>
+// // <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
+// // {stations.map((station, index) => (
+// // <React.Fragment key={station.id || station.stationId || station.name}>
+// // {index > 0 && (
+// // <ListItem sx={{ pl: 6, pr: 6 }}>
+// // <Typography color="text.secondary" fontStyle="italic">
+// // Khoảng cách đến ga trước: {stations[index - 1]?.distanceToNext ?? 0} km
+// // </Typography>
+// // </ListItem>
+// // )}
+// // <ListItem>
+// // <ListItemText
+// //   primary={`${index + 1}. ${station.name || station.stationName}`}
+// // />
+// // </ListItem>
+// // </React.Fragment>
+// // ))}
+// // </List>
+// // </Paper>
+// // <Button component={Link} to="/metro-routes" variant="outlined">
+// // Quay lại danh sách
+// // </Button>
 
-//     {/* Dialog thêm nhà ga */}
-//     <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
-//       <DialogTitle>Thêm nhà ga vào tuyến</DialogTitle>
-//       <DialogContent>
-//         <TextField
-//           select
-//           label="Chọn nhà ga"
-//           value={selectedStationId}
-//           onChange={e => setSelectedStationId(e.target.value)}
-//           fullWidth
-//           margin="normal"
-//           required
-//         >
-//           <MenuItem value="">-- Chọn nhà ga --</MenuItem>
-//           {stationList
-//             .filter(st => !stations.some(s => (s.id || s.stationId) === st.id))
-//             .map(station => (
-//               <MenuItem key={station.id} value={station.id}>
-//                 {station.name} ({station.code})
-//               </MenuItem>
-//             ))}
-//         </TextField>
-//         {stations.length > 0 && (
-//           <TextField
-//             label="Khoảng cách từ ga trước (km)"
-//             value={distance}
-//             onChange={e => setDistance(e.target.value)}
-//             type="number"
-//             fullWidth
-//             margin="normal"
-//             inputProps={{ min: 0, step: 0.01 }}
-//             required
-//           />
-//         )}
-//       </DialogContent>
-//       <DialogActions>
-//         <Button onClick={() => setOpenDialog(false)}>Hủy</Button>
-//         <Button onClick={handleAddStation} variant="contained">Thêm</Button>
-//       </DialogActions>
-//     </Dialog>
-//   </CardContent>
-// </Card>
+// //     {/* Dialog thêm nhà ga */}
+// //     <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
+// //       <DialogTitle>Thêm nhà ga vào tuyến</DialogTitle>
+// //       <DialogContent>
+// //         <TextField
+// //           select
+// //           label="Chọn nhà ga"
+// //           value={selectedStationId}
+// //           onChange={e => setSelectedStationId(e.target.value)}
+// //           fullWidth
+// //           margin="normal"
+// //           required
+// //         >
+// //           <MenuItem value="">-- Chọn nhà ga --</MenuItem>
+// //           {stationList
+// //             .filter(st => !stations.some(s => (s.id || s.stationId) === st.id))
+// //             .map(station => (
+// //               <MenuItem key={station.id} value={station.id}>
+// //                 {station.name} ({station.code})
+// //               </MenuItem>
+// //             ))}
+// //         </TextField>
+// //         {stations.length > 0 && (
+// //           <TextField
+// //             label="Khoảng cách từ ga trước (km)"
+// //             value={distance}
+// //             onChange={e => setDistance(e.target.value)}
+// //             type="number"
+// //             fullWidth
+// //             margin="normal"
+// //             inputProps={{ min: 0, step: 0.01 }}
+// //             required
+// //           />
+// //         )}
+// //       </DialogContent>
+// //       <DialogActions>
+// //         <Button onClick={() => setOpenDialog(false)}>Hủy</Button>
+// //         <Button onClick={handleAddStation} variant="contained">Thêm</Button>
+// //       </DialogActions>
+// //     </Dialog>
+// //   </CardContent>
+// // </Card>
 
-// );
-// };
+// // );
+// // };
 
-// export default DetailRoute;
+// // export default DetailRoute;
 
 
 
+
+
+
+
+
+
+
+
+
+// // import React, { useState, useEffect } from 'react';
+// // import { useParams, Link } from 'react-router-dom';
+// // import {
+// //   Card, CardContent, Typography, Button, Stack, Chip, Paper, List, ListItem, ListItemText,
+// //   CircularProgress, Dialog, DialogTitle, DialogContent, DialogActions, TextField, MenuItem
+// // } from '@mui/material';
+// // import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
+
+// // const statusColor = (status) => {
+// //   switch (status) {
+// //     case 'Đang hoạt động':
+// //       return 'success';
+// //     case 'Đang xây dựng':
+// //       return 'warning';
+// //     case 'Đang quy hoạch':
+// //       return 'default';
+// //     default:
+// //       return 'default';
+// //   }
+// // };
+
+// // const DetailRoute = () => {
+// //   const { id } = useParams();
+// //   const [route, setRoute] = useState(null);
+// //   const [stations, setStations] = useState([]);
+// //   const [distances, setDistances] = useState([]);
+// //   const [loading, setLoading] = useState(true);
+
+// //   // Dialog state
+// //   const [openDialog, setOpenDialog] = useState(false);
+// //   const [stationList, setStationList] = useState([]);
+// //   const [selectedStationId, setSelectedStationId] = useState('');
+
+// //   // Lấy thông tin route và danh sách station của route
+// //   useEffect(() => {
+// //     fetch(`https://api.metroticketingsystem.site/api/catalog/routes/${id}`, {
+// //       headers: { 'Accept': 'application/json' }
+// //     })
+// //       .then(res => res.json())
+// //       .then(data => {
+// //         setRoute(data.data);
+// //         setStations(data.data.stations || []);
+// //         setDistances((data.data.stations || []).map(st => st.distanceToNext || 0));
+// //         setLoading(false);
+// //       })
+// //       .catch(() => setLoading(false));
+// //   }, [id]);
+
+// //   // Lấy danh sách tất cả các station (dùng cho select)
+// //   useEffect(() => {
+// //     fetch('https://api.metroticketingsystem.site/api/catalog/Stations', {
+// //       headers: { 'Accept': 'application/json' }
+// //     })
+// //       .then(res => res.json())
+// //       .then(data => {
+// //         setStationList(data.data.stations || []);
+// //       });
+// //   }, []);
+
+// //   // Thêm station đã chọn vào cuối danh sách
+// //   const handleAddStation = () => {
+// //     if (!selectedStationId) return;
+// //     const addedStation = stationList.find(st => st.id === selectedStationId);
+// //     setStations([...stations, addedStation]);
+// //     setDistances([...distances, 0]);
+// //     setSelectedStationId('');
+// //     setOpenDialog(false);
+// //   };
+
+// //   // Xử lý kéo thả
+// //   const handleDragEnd = (result) => {
+// //     if (!result.destination) return;
+// //     const newStations = Array.from(stations);
+// //     const [removed] = newStations.splice(result.source.index, 1);
+// //     newStations.splice(result.destination.index, 0, removed);
+
+// //     const newDistances = Array.from(distances);
+// //     const [removedDist] = newDistances.splice(result.source.index, 1);
+// //     newDistances.splice(result.destination.index, 0, removedDist);
+
+// //     setStations(newStations);
+// //     setDistances(newDistances);
+// //   };
+
+// //   // Cập nhật khoảng cách
+// //   const handleDistanceChange = (idx, value) => {
+// //     const newDistances = [...distances];
+// //     newDistances[idx] = value;
+// //     setDistances(newDistances);
+// //   };
+
+// //   // Lưu thay đổi lên backend
+// //   const handleSave = async () => {
+// //     try {
+// //       const stationRoutes = stations.map((st, idx) => ({
+// //         stationId: st.id || st.stationId,
+// //         routeId: id,
+// //         order: idx + 1,
+// //         // distanceToNext: idx === 0 ? 0 : parseFloat(distances[idx]) || 0
+// //         // distanceToNext: idx === stations.length - 1 ? 0 : parseFloat(distances[idx + 1]) || 0
+// //         distanceToNext: idx === stations.length - 1 ? 0 : parseFloat(distances[idx]) || 0
+// //       }));
+
+// //       const resRoute = await fetch('https://api.metroticketingsystem.site/api/catalog/Routes/station-route', {
+// //         method: 'PUT',
+// //         headers: {
+// //           'Content-Type': 'application/json',
+// //           'Accept': 'application/json'
+// //         },
+// //         body: JSON.stringify({
+// //           route: {
+// //             routeId: id,
+// //             stationRoutes: stationRoutes
+// //           }
+// //         })
+// //       });
+// //       if (!resRoute.ok) throw new Error('Lỗi khi cập nhật tuyến!' + await resRoute.text());
+
+// //       // Reload lại danh sách station trong tuyến
+// //       fetch(`https://api.metroticketingsystem.site/api/catalog/routes/${id}`, {
+// //         headers: { 'Accept': 'application/json' }
+// //       })
+// //         .then(res => res.json())
+// //         .then(data => {
+// //           setRoute(data.data);
+// //           setStations(data.data.stations || []);
+// //           setDistances((data.data.stations || []).map(st => st.distanceToNext || 0));
+// //         });
+
+// //       alert('Đã lưu thay đổi!');
+// //     } catch (err) {
+// //       alert('Không thể lưu thay đổi. Vui lòng thử lại!' + err.message);
+// //       console.error(err);
+// //     }
+// //   };
+
+// //   if (loading) return <CircularProgress />;
+// //   if (!route) {
+// //     return (
+// //       <Card>
+// //         <CardContent>
+// //           <Typography variant="h5" color="error">Không tìm thấy tuyến đường!</Typography>
+// //           <Button component={Link} to="/metro-routes" variant="contained" sx={{ mt: 2 }}>
+// //             Quay lại danh sách
+// //           </Button>
+// //         </CardContent>
+// //       </Card>
+// //     );
+// //   }
+
+// //   return (
+// //     <Card>
+// //       <CardContent>
+// //         <Typography variant="h4" gutterBottom>
+// //           Chi tiết tuyến Metro
+// //         </Typography>
+// //         <Typography variant="h6" gutterBottom>
+// //           {route.name}
+// //         </Typography>
+// //         <Stack spacing={1} sx={{ mb: 2 }}>
+// //           <Typography>Mã tuyến: <b>{route.code}</b></Typography>
+// //           <Typography>Chiều dài: <b>{route.lengthInKm} km</b></Typography>
+// //           <Typography component="span">
+// //             Trạng thái: <Chip label={route.status || 'Chưa rõ'} color={statusColor(route.status)} />
+// //           </Typography>
+// //         </Stack>
+// //         <Stack direction="row" spacing={2} sx={{ mb: 1 }}>
+// //           <Typography variant="subtitle1" sx={{ mt: 1 }}>
+// //             Danh sách nhà ga:
+// //           </Typography>
+// //           <Button variant="contained" onClick={() => setOpenDialog(true)}>
+// //             Thêm nhà ga
+// //           </Button>
+// //         </Stack>
+// //         <Paper variant="outlined" sx={{ mb: 2 }}>
+// //           <DragDropContext onDragEnd={handleDragEnd}>
+// //             <Droppable droppableId="stations">
+// //               {(provided) => (
+// //                 // <List sx={{ width: '100%', bgcolor: 'background.paper' }} {...provided.droppableProps} ref={provided.innerRef}>
+// //                 //   {stations.map((station, index) => (
+// //                 //     <Draggable key={station.id || station.stationId || station.name} draggableId={String(station.id || station.stationId || station.name)} index={index}>
+// //                 //       {(provided) => (
+// //                 //         <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
+// //                 //           {index > 0 && (
+// //                 //             <ListItem sx={{ pl: 6, pr: 6 }}>
+// //                 //               <TextField
+// //                 //                 label="Khoảng cách đến ga trước (km)"
+// //                 //                 type="number"
+// //                 //                 value={distances[index] || ''}
+// //                 //                 onChange={e => handleDistanceChange(index, e.target.value)}
+// //                 //                 sx={{ width: 180 }}
+// //                 //                 size="small"
+// //                 //                 inputProps={{ min: 0, step: 0.01 }}
+// //                 //               />
+// //                 //             </ListItem>
+// //                 //           )}
+// //                 //           <ListItem>
+// //                 //             <ListItemText
+// //                 //               primary={`${index + 1}. ${station.name || station.stationName}`}
+// //                 //             />
+// //                 //           </ListItem>
+// //                 //         </div>
+// //                 //       )}
+// //                 //     </Draggable>
+// //                 //   ))}
+// //                 //   {provided.placeholder}
+// //                 // </List>
+
+// //                 <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
+// //   {stations.map((station, index) => (
+// //     <React.Fragment key={station.id || station.stationId || station.name}>
+// //       <ListItem>
+// //         <ListItemText
+// //           primary={`${index + 1}. ${station.name || station.stationName}`}
+// //         />
+// //       </ListItem>
+// //       {index < stations.length - 1 && (
+// //         <ListItem sx={{ pl: 6, pr: 6 }}>
+// //           <TextField
+// //             label="Khoảng cách đến ga tiếp theo (km)"
+// //             type="number"
+// //             value={distances[index] || ''}
+// //             onChange={e => handleDistanceChange(index, e.target.value)}
+// //             sx={{ width: 180 }}
+// //             size="small"
+// //             inputProps={{ min: 0, step: 0.01 }}
+// //           />
+// //         </ListItem>
+// //       )}
+// //     </React.Fragment>
+// //   ))}
+// // </List>
+// //               )}
+// //             </Droppable>
+// //           </DragDropContext>
+// //         </Paper>
+// //         <Stack direction="row" spacing={2}>
+// //           <Button component={Link} to="/metro-routes" variant="outlined">
+// //             Quay lại danh sách
+// //           </Button>
+// //           <Button variant="contained" color="primary" onClick={handleSave}>
+// //             Lưu thay đổi
+// //           </Button>
+// //         </Stack>
+
+// //         {/* Dialog thêm nhà ga */}
+// //         <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
+// //           <DialogTitle>Thêm nhà ga vào tuyến</DialogTitle>
+// //           <DialogContent>
+// //             <TextField
+// //               select
+// //               label="Chọn nhà ga"
+// //               value={selectedStationId}
+// //               onChange={e => setSelectedStationId(e.target.value)}
+// //               fullWidth
+// //               margin="normal"
+// //               required
+// //             >
+// //               <MenuItem value="">-- Chọn nhà ga --</MenuItem>
+// //               {stationList
+// //                 .filter(st => !stations.some(s => (s.id || s.stationId) === st.id))
+// //                 .map(station => (
+// //                   <MenuItem key={station.id} value={station.id}>
+// //                     {station.name} ({station.code})
+// //                   </MenuItem>
+// //                 ))}
+// //             </TextField>
+// //             {/* Không nhập khoảng cách ở đây */}
+// //           </DialogContent>
+// //           <DialogActions>
+// //             <Button onClick={() => setOpenDialog(false)}>Hủy</Button>
+// //             <Button onClick={handleAddStation} variant="contained">Thêm</Button>
+// //           </DialogActions>
+// //         </Dialog>
+// //       </CardContent>
+// //     </Card>
+// //   );
+// // };
+
+// // export default DetailRoute;
 
 
 
@@ -290,9 +579,11 @@
 //     })
 //       .then(res => res.json())
 //       .then(data => {
+//         // Sắp xếp lại theo order nếu có
+//         const sortedStations = (data.data.stations || []).sort((a, b) => (a.order || 0) - (b.order || 0));
 //         setRoute(data.data);
-//         setStations(data.data.stations || []);
-//         setDistances((data.data.stations || []).map(st => st.distanceToNext || 0));
+//         setStations(sortedStations);
+//         setDistances(sortedStations.map(st => st.distanceToNext || 0));
 //         setLoading(false);
 //       })
 //       .catch(() => setLoading(false));
@@ -313,8 +604,8 @@
 //   const handleAddStation = () => {
 //     if (!selectedStationId) return;
 //     const addedStation = stationList.find(st => st.id === selectedStationId);
-//     setStations([...stations, addedStation]);
-//     setDistances([...distances, 0]);
+//     setStations(prev => [...prev, addedStation]);
+//     setDistances(prev => [...prev, 0]);
 //     setSelectedStationId('');
 //     setOpenDialog(false);
 //   };
@@ -344,12 +635,11 @@
 //   // Lưu thay đổi lên backend
 //   const handleSave = async () => {
 //     try {
+//       // Đảm bảo đúng logic: distanceToNext của ga cuối luôn là 0, các ga khác lấy từ distances[index]
 //       const stationRoutes = stations.map((st, idx) => ({
 //         stationId: st.id || st.stationId,
 //         routeId: id,
 //         order: idx + 1,
-//         // distanceToNext: idx === 0 ? 0 : parseFloat(distances[idx]) || 0
-//         // distanceToNext: idx === stations.length - 1 ? 0 : parseFloat(distances[idx + 1]) || 0
 //         distanceToNext: idx === stations.length - 1 ? 0 : parseFloat(distances[idx]) || 0
 //       }));
 
@@ -368,20 +658,21 @@
 //       });
 //       if (!resRoute.ok) throw new Error('Lỗi khi cập nhật tuyến!' + await resRoute.text());
 
-//       // Reload lại danh sách station trong tuyến
+//       // Reload lại danh sách station trong tuyến, sort theo order nếu có
 //       fetch(`https://api.metroticketingsystem.site/api/catalog/routes/${id}`, {
 //         headers: { 'Accept': 'application/json' }
 //       })
 //         .then(res => res.json())
 //         .then(data => {
+//           const sortedStations = (data.data.stations || []).sort((a, b) => (a.order || 0) - (b.order || 0));
 //           setRoute(data.data);
-//           setStations(data.data.stations || []);
-//           setDistances((data.data.stations || []).map(st => st.distanceToNext || 0));
+//           setStations(sortedStations);
+//           setDistances(sortedStations.map(st => st.distanceToNext || 0));
 //         });
 
 //       alert('Đã lưu thay đổi!');
 //     } catch (err) {
-//       alert('Không thể lưu thay đổi. Vui lòng thử lại!' + err.message);
+//       alert('Không thể lưu thay đổi. Vui lòng thử lại!\n' + err.message);
 //       console.error(err);
 //     }
 //   };
@@ -413,7 +704,7 @@
 //           <Typography>Mã tuyến: <b>{route.code}</b></Typography>
 //           <Typography>Chiều dài: <b>{route.lengthInKm} km</b></Typography>
 //           <Typography component="span">
-//             Trạng thái: <Chip label={route.status || 'Chưa rõ'} color={statusColor(route.status)} />
+//             Trạng thái: <Chip label={route.status || 'Hoạt động'} color={statusColor(route.status)} />
 //           </Typography>
 //         </Stack>
 //         <Stack direction="row" spacing={2} sx={{ mb: 1 }}>
@@ -428,60 +719,39 @@
 //           <DragDropContext onDragEnd={handleDragEnd}>
 //             <Droppable droppableId="stations">
 //               {(provided) => (
-//                 // <List sx={{ width: '100%', bgcolor: 'background.paper' }} {...provided.droppableProps} ref={provided.innerRef}>
-//                 //   {stations.map((station, index) => (
-//                 //     <Draggable key={station.id || station.stationId || station.name} draggableId={String(station.id || station.stationId || station.name)} index={index}>
-//                 //       {(provided) => (
-//                 //         <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
-//                 //           {index > 0 && (
-//                 //             <ListItem sx={{ pl: 6, pr: 6 }}>
-//                 //               <TextField
-//                 //                 label="Khoảng cách đến ga trước (km)"
-//                 //                 type="number"
-//                 //                 value={distances[index] || ''}
-//                 //                 onChange={e => handleDistanceChange(index, e.target.value)}
-//                 //                 sx={{ width: 180 }}
-//                 //                 size="small"
-//                 //                 inputProps={{ min: 0, step: 0.01 }}
-//                 //               />
-//                 //             </ListItem>
-//                 //           )}
-//                 //           <ListItem>
-//                 //             <ListItemText
-//                 //               primary={`${index + 1}. ${station.name || station.stationName}`}
-//                 //             />
-//                 //           </ListItem>
-//                 //         </div>
-//                 //       )}
-//                 //     </Draggable>
-//                 //   ))}
-//                 //   {provided.placeholder}
-//                 // </List>
-
-//                 <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
-//   {stations.map((station, index) => (
-//     <React.Fragment key={station.id || station.stationId || station.name}>
-//       <ListItem>
-//         <ListItemText
-//           primary={`${index + 1}. ${station.name || station.stationName}`}
-//         />
-//       </ListItem>
-//       {index < stations.length - 1 && (
-//         <ListItem sx={{ pl: 6, pr: 6 }}>
-//           <TextField
-//             label="Khoảng cách đến ga tiếp theo (km)"
-//             type="number"
-//             value={distances[index] || ''}
-//             onChange={e => handleDistanceChange(index, e.target.value)}
-//             sx={{ width: 180 }}
-//             size="small"
-//             inputProps={{ min: 0, step: 0.01 }}
-//           />
-//         </ListItem>
-//       )}
-//     </React.Fragment>
-//   ))}
-// </List>
+//                 <List sx={{ width: '100%', bgcolor: 'background.paper' }} ref={provided.innerRef} {...provided.droppableProps}>
+//                   {stations.map((station, index) => (
+//                     <Draggable
+//                       key={station.id || station.stationId || station.name}
+//                       draggableId={String(station.id || station.stationId || station.name)}
+//                       index={index}
+//                     >
+//                       {(provided) => (
+//                         <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
+//                           <ListItem>
+//                             <ListItemText
+//                               primary={`${index + 1}. ${station.name || station.stationName}`}
+//                             />
+//                           </ListItem>
+//                           {index < stations.length - 1 && (
+//                             <ListItem sx={{ pl: 6, pr: 6 }}>
+//                               <TextField
+//                                 label="Khoảng cách đến ga tiếp theo (km)"
+//                                 type="number"
+//                                 value={distances[index] || ''}
+//                                 onChange={e => handleDistanceChange(index, e.target.value)}
+//                                 sx={{ width: 180 }}
+//                                 size="small"
+//                                 inputProps={{ min: 0, step: 0.01 }}
+//                               />
+//                             </ListItem>
+//                           )}
+//                         </div>
+//                       )}
+//                     </Draggable>
+//                   ))}
+//                   {provided.placeholder}
+//                 </List>
 //               )}
 //             </Droppable>
 //           </DragDropContext>
@@ -536,16 +806,466 @@
 
 
 
+// import React, { useState, useEffect } from 'react';
+// import { useParams, Link, useNavigate } from 'react-router-dom';
+// import {
+//   Card, CardContent, Typography, Button, Stack, Chip, Paper, List, ListItem, ListItemText,
+//   CircularProgress, Dialog, DialogTitle, DialogContent, DialogActions, TextField, MenuItem,
+//   Box, Alert, IconButton
+// } from '@mui/material';
+// import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
+// import DeleteIcon from '@mui/icons-material/Delete';
+// import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
+
+// const statusColor = (status) => {
+//   switch (status) {
+//     case 'Đang hoạt động':
+//       return 'success';
+//     case 'Đang xây dựng':
+//       return 'warning';
+//     case 'Đang quy hoạch':
+//       return 'default';
+//     default:
+//       return 'default';
+//   }
+// };
+
+// const DetailRoute = () => {
+//   const { id } = useParams();
+//   const navigate = useNavigate();
+//   const [route, setRoute] = useState(null);
+//   const [stations, setStations] = useState([]);
+//   const [distances, setDistances] = useState([]);
+//   const [loading, setLoading] = useState(true);
+//   const [error, setError] = useState('');
+
+//   // Dialog state
+//   const [openDialog, setOpenDialog] = useState(false);
+//   const [stationList, setStationList] = useState([]);
+//   const [selectedStationId, setSelectedStationId] = useState('');
+
+//   // Kiểm tra authentication
+//   useEffect(() => {
+//     const token = localStorage.getItem('token');
+//     const role = localStorage.getItem('role');
+    
+//     if (!token) {
+//       navigate('/application/login');
+//       return;
+//     }
+    
+//     if (role !== 'Administrator') {
+//       navigate('/dashboard/default');
+//       return;
+//     }
+//   }, [navigate]);
+
+//   // Lấy thông tin route và danh sách station của route
+//   useEffect(() => {
+//     if (!id || id === 'undefined') {
+//       setError('Route ID không hợp lệ');
+//       setLoading(false);
+//       return;
+//     }
+
+//     const fetchRouteData = async () => {
+//       try {
+//         const response = await fetch(`https://api.metroticketingsystem.site/api/catalog/routes/${id}`, {
+//           headers: { 'Accept': 'application/json' }
+//         });
+
+//         if (!response.ok) {
+//           if (response.status === 404) {
+//             throw new Error('Không tìm thấy tuyến đường này');
+//           }
+//           throw new Error(`Lỗi server: ${response.status}`);
+//         }
+
+//         const data = await response.json();
+        
+//         if (!data || !data.data) {
+//           throw new Error('Dữ liệu không hợp lệ');
+//         }
+
+//         // Sắp xếp lại theo order nếu có
+//         const sortedStations = (data.data.stations || []).sort((a, b) => (a.order || 0) - (b.order || 0));
+//         setRoute(data.data);
+//         setStations(sortedStations);
+//         setDistances(sortedStations.map(st => st.distanceToNext || 0));
+        
+//       } catch (err) {
+//         console.error('Error fetching route:', err);
+//         setError(err.message);
+//       } finally {
+//         setLoading(false);
+//       }
+//     };
+
+//     fetchRouteData();
+//   }, [id]);
+
+//   // Lấy danh sách tất cả các station (dùng cho select)
+//   useEffect(() => {
+//     fetch('https://api.metroticketingsystem.site/api/catalog/Stations', {
+//       headers: { 'Accept': 'application/json' }
+//     })
+//       .then(res => res.json())
+//       .then(data => {
+//         setStationList(data.data.stations || []);
+//       })
+//       .catch(err => console.error('Error fetching stations:', err));
+//   }, []);
+
+//   // Thêm station đã chọn vào cuối danh sách
+//   const handleAddStation = () => {
+//     if (!selectedStationId) return;
+//     const addedStation = stationList.find(st => st.id === selectedStationId);
+//     if (addedStation) {
+//       setStations(prev => [...prev, addedStation]);
+//       setDistances(prev => [...prev, 0]);
+//       setSelectedStationId('');
+//       setOpenDialog(false);
+//     }
+//   };
+
+//   // Xóa station khỏi danh sách
+//   const handleRemoveStation = (indexToRemove) => {
+//     setStations(prev => prev.filter((_, index) => index !== indexToRemove));
+//     setDistances(prev => prev.filter((_, index) => index !== indexToRemove));
+//   };
+
+//   // Xử lý kéo thả
+//   const handleDragEnd = (result) => {
+//     if (!result.destination) return;
+    
+//     const newStations = Array.from(stations);
+//     const [removed] = newStations.splice(result.source.index, 1);
+//     newStations.splice(result.destination.index, 0, removed);
+
+//     const newDistances = Array.from(distances);
+//     const [removedDist] = newDistances.splice(result.source.index, 1);
+//     newDistances.splice(result.destination.index, 0, removedDist);
+
+//     setStations(newStations);
+//     setDistances(newDistances);
+//   };
+
+//   // Cập nhật khoảng cách
+//   const handleDistanceChange = (idx, value) => {
+//     const newDistances = [...distances];
+//     newDistances[idx] = value;
+//     setDistances(newDistances);
+//   };
+
+//   // Lưu thay đổi lên backend
+//   const handleSave = async () => {
+//     try {
+//       // Đảm bảo đúng logic: distanceToNext của ga cuối luôn là 0, các ga khác lấy từ distances[index]
+//       const stationRoutes = stations.map((st, idx) => ({
+//         stationId: st.id || st.stationId,
+//         routeId: id,
+//         order: idx + 1,
+//         distanceToNext: idx === stations.length - 1 ? 0 : parseFloat(distances[idx]) || 0
+//       }));
+
+//       const resRoute = await fetch('https://api.metroticketingsystem.site/api/catalog/Routes/station-route', {
+//         method: 'PUT',
+//         headers: {
+//           'Content-Type': 'application/json',
+//           'Accept': 'application/json'
+//         },
+//         body: JSON.stringify({
+//           route: {
+//             routeId: id,
+//             stationRoutes: stationRoutes
+//           }
+//         })
+//       });
+
+//       if (!resRoute.ok) {
+//         const errorText = await resRoute.text();
+//         throw new Error(`Lỗi khi cập nhật tuyến: ${errorText}`);
+//       }
+
+//       // Reload lại danh sách station trong tuyến, sort theo order nếu có
+//       const response = await fetch(`https://api.metroticketingsystem.site/api/catalog/routes/${id}`, {
+//         headers: { 'Accept': 'application/json' }
+//       });
+
+//       if (response.ok) {
+//         const data = await response.json();
+//         const sortedStations = (data.data.stations || []).sort((a, b) => (a.order || 0) - (b.order || 0));
+//         setRoute(data.data);
+//         setStations(sortedStations);
+//         setDistances(sortedStations.map(st => st.distanceToNext || 0));
+//       }
+
+//       alert('Đã lưu thay đổi!');
+//     } catch (err) {
+//       alert(`Không thể lưu thay đổi: ${err.message}`);
+//       console.error(err);
+//     }
+//   };
+
+//   // Loading state
+//   if (loading) {
+//     return (
+//       <Box display="flex" justifyContent="center" alignItems="center" minHeight="50vh">
+//         <CircularProgress />
+//       </Box>
+//     );
+//   }
+
+//   // Error state
+//   if (error) {
+//     return (
+//       <Card sx={{ backgroundColor: '#ffebee' }}>
+//         <CardContent>
+//           <Alert severity="error" sx={{ mb: 2 }}>
+//             {error}
+//           </Alert>
+//           <Typography variant="h6" gutterBottom>
+//             Có thể do:
+//           </Typography>
+//           <Typography component="ul">
+//             <li>Route ID không tồn tại</li>
+//             <li>Kết nối mạng bị gián đoạn</li>
+//             <li>Server đang bảo trì</li>
+//           </Typography>
+//           <Stack direction="row" spacing={2} sx={{ mt: 2 }}>
+//             <Button component={Link} to="/metro-routes" variant="contained">
+//               Quay lại danh sách
+//             </Button>
+//             <Button onClick={() => window.location.reload()} variant="outlined">
+//               Thử lại
+//             </Button>
+//           </Stack>
+//         </CardContent>
+//       </Card>
+//     );
+//   }
+
+//   // Route not found
+//   if (!route) {
+//     return (
+//       <Card sx={{ backgroundColor: '#ffebee' }}>
+//         <CardContent>
+//           <Typography variant="h5" color="error">Không tìm thấy tuyến đường!</Typography>
+//           <Button component={Link} to="/metro-routes" variant="contained" sx={{ mt: 2 }}>
+//             Quay lại danh sách
+//           </Button>
+//         </CardContent>
+//       </Card>
+//     );
+//   }
+
+//   return (
+//     <Card sx={{ backgroundColor: '#e8f5e8' }}> {/* Background xanh lá */}
+//       <CardContent>
+//         <Typography variant="h4" gutterBottom sx={{ color: '#2e7d32' }}>
+//           Chi tiết tuyến Metro
+//         </Typography>
+//         <Typography variant="h6" gutterBottom sx={{ color: '#388e3c' }}>
+//           {route.name}
+//         </Typography>
+//         <Stack spacing={1} sx={{ mb: 2 }}>
+//           <Typography>Mã tuyến: <b>{route.code}</b></Typography>
+//           <Typography>Chiều dài: <b>{route.lengthInKm} km</b></Typography>
+//           <Typography component="span">
+//             Trạng thái: <Chip label={route.status || 'Hoạt động'} color={statusColor(route.status)} />
+//           </Typography>
+//         </Stack>
+        
+//         <Stack direction="row" spacing={2} sx={{ mb: 1 }}>
+//           <Typography variant="subtitle1" sx={{ mt: 1, fontWeight: 'bold' }}>
+//             Danh sách nhà ga ({stations.length} ga):
+//           </Typography>
+//           <Button 
+//             variant="contained" 
+//             onClick={() => setOpenDialog(true)}
+//             sx={{ 
+//               backgroundColor: '#4caf50', 
+//               '&:hover': { backgroundColor: '#45a049' } 
+//             }}
+//           >
+//             Thêm nhà ga
+//           </Button>
+//         </Stack>
+
+//         <Paper variant="outlined" sx={{ mb: 2, backgroundColor: '#f1f8f1', borderColor: '#81c784' }}>
+//           <DragDropContext onDragEnd={handleDragEnd}>
+//             <Droppable droppableId="stations">
+//               {(provided) => (
+//                 <List 
+//                   sx={{ width: '100%', bgcolor: 'transparent' }} 
+//                   ref={provided.innerRef} 
+//                   {...provided.droppableProps}
+//                 >
+//                   {stations.length === 0 ? (
+//                     <ListItem>
+//                       <ListItemText 
+//                         primary="Chưa có ga nào trong tuyến" 
+//                         sx={{ textAlign: 'center', fontStyle: 'italic', color: 'text.secondary' }}
+//                       />
+//                     </ListItem>
+//                   ) : (
+//                     stations.map((station, index) => (
+//                       <Draggable
+//                         key={station.id || station.stationId || station.name}
+//                         draggableId={String(station.id || station.stationId || station.name)}
+//                         index={index}
+//                       >
+//                         {(provided, snapshot) => (
+//                           <div ref={provided.innerRef} {...provided.draggableProps}>
+//                             <ListItem 
+//                               sx={{ 
+//                                 backgroundColor: snapshot.isDragging ? '#c8e6c9' : '#ffffff',
+//                                 mb: 1, 
+//                                 borderRadius: 1,
+//                                 border: '1px solid #e0e0e0',
+//                                 boxShadow: snapshot.isDragging ? 3 : 1
+//                               }}
+//                             >
+//                               <IconButton {...provided.dragHandleProps} size="small">
+//                                 <DragIndicatorIcon />
+//                               </IconButton>
+//                               <ListItemText
+//                                 primary={`${index + 1}. ${station.name || station.stationName}`}
+//                                 secondary={station.code ? `Mã: ${station.code}` : ''}
+//                               />
+//                               <IconButton 
+//                                 onClick={() => handleRemoveStation(index)}
+//                                 color="error"
+//                                 size="small"
+//                               >
+//                                 <DeleteIcon />
+//                               </IconButton>
+//                             </ListItem>
+                            
+//                             {index < stations.length - 1 && (
+//                               <ListItem sx={{ pl: 6, pr: 6, backgroundColor: 'transparent' }}>
+//                                 <TextField
+//                                   label="Khoảng cách đến ga tiếp theo (km)"
+//                                   type="number"
+//                                   value={distances[index] || ''}
+//                                   onChange={e => handleDistanceChange(index, e.target.value)}
+//                                   sx={{ 
+//                                     width: 220,
+//                                     '& .MuiOutlinedInput-root': {
+//                                       backgroundColor: '#ffffff'
+//                                     }
+//                                   }}
+//                                   size="small"
+//                                   inputProps={{ min: 0, step: 0.01 }}
+//                                   helperText={`Từ ga ${index + 1} đến ga ${index + 2}`}
+//                                 />
+//                               </ListItem>
+//                             )}
+//                           </div>
+//                         )}
+//                       </Draggable>
+//                     ))
+//                   )}
+//                   {provided.placeholder}
+//                 </List>
+//               )}
+//             </Droppable>
+//           </DragDropContext>
+//         </Paper>
+
+//         <Stack direction="row" spacing={2}>
+//           <Button component={Link} to="/metro-routes" variant="outlined">
+//             Quay lại danh sách
+//           </Button>
+//           <Button 
+//             variant="contained" 
+//             color="primary" 
+//             onClick={handleSave}
+//             disabled={stations.length === 0}
+//             sx={{ 
+//               backgroundColor: '#4caf50', 
+//               '&:hover': { backgroundColor: '#45a049' } 
+//             }}
+//           >
+//             Lưu thay đổi
+//           </Button>
+//         </Stack>
+
+//         {/* Dialog thêm nhà ga */}
+//         <Dialog 
+//           open={openDialog} 
+//           onClose={() => setOpenDialog(false)}
+//           PaperProps={{
+//             sx: { backgroundColor: '#e8f5e8' }
+//           }}
+//         >
+//           <DialogTitle sx={{ color: '#2e7d32' }}>Thêm nhà ga vào tuyến</DialogTitle>
+//           <DialogContent>
+//             <TextField
+//               select
+//               label="Chọn nhà ga"
+//               value={selectedStationId}
+//               onChange={e => setSelectedStationId(e.target.value)}
+//               fullWidth
+//               margin="normal"
+//               required
+//               sx={{
+//                 '& .MuiOutlinedInput-root': {
+//                   backgroundColor: '#ffffff'
+//                 }
+//               }}
+//             >
+//               <MenuItem value="">-- Chọn nhà ga --</MenuItem>
+//               {stationList
+//                 .filter(st => !stations.some(s => (s.id || s.stationId) === st.id))
+//                 .map(station => (
+//                   <MenuItem key={station.id} value={station.id}>
+//                     {station.name} ({station.code})
+//                   </MenuItem>
+//                 ))}
+//             </TextField>
+//             {stationList.filter(st => !stations.some(s => (s.id || s.stationId) === st.id)).length === 0 && (
+//               <Alert severity="warning" sx={{ mt: 2 }}>
+//                 Tất cả các ga đã được thêm vào tuyến
+//               </Alert>
+//             )}
+//           </DialogContent>
+//           <DialogActions>
+//             <Button onClick={() => setOpenDialog(false)}>Hủy</Button>
+//             <Button 
+//               onClick={handleAddStation} 
+//               variant="contained"
+//               disabled={!selectedStationId}
+//               sx={{ 
+//                 backgroundColor: '#4caf50', 
+//                 '&:hover': { backgroundColor: '#45a049' } 
+//               }}
+//             >
+//               Thêm
+//             </Button>
+//           </DialogActions>
+//         </Dialog>
+//       </CardContent>
+//     </Card>
+//   );
+// };
+
+// export default DetailRoute;
+
+
 
 
 
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import {
   Card, CardContent, Typography, Button, Stack, Chip, Paper, List, ListItem, ListItemText,
-  CircularProgress, Dialog, DialogTitle, DialogContent, DialogActions, TextField, MenuItem
+  CircularProgress, Dialog, DialogTitle, DialogContent, DialogActions, TextField, MenuItem,
+  Box, Alert, IconButton
 } from '@mui/material';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
+import DeleteIcon from '@mui/icons-material/Delete';
+import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 
 const statusColor = (status) => {
   switch (status) {
@@ -560,33 +1280,94 @@ const statusColor = (status) => {
   }
 };
 
+// ✅ THÊM HÀM FORMAT SỐ THẬP PHÂN
+const formatDecimal = (value, decimals = 2) => {
+  if (!value || value === '') return '';
+  const num = parseFloat(value);
+  if (isNaN(num)) return '';
+  return num.toFixed(decimals);
+};
+
+// ✅ THÊM HÀM VALIDATE INPUT
+const validateDistanceInput = (value) => {
+  // Chỉ cho phép số, dấu chấm và tối đa 2 số thập phân
+  const regex = /^\d*\.?\d{0,2}$/;
+  return regex.test(value);
+};
+
 const DetailRoute = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [route, setRoute] = useState(null);
   const [stations, setStations] = useState([]);
   const [distances, setDistances] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   // Dialog state
   const [openDialog, setOpenDialog] = useState(false);
   const [stationList, setStationList] = useState([]);
   const [selectedStationId, setSelectedStationId] = useState('');
 
+  // Kiểm tra authentication
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    const role = localStorage.getItem('role');
+    
+    if (!token) {
+      navigate('/application/login');
+      return;
+    }
+    
+    if (role !== 'Administrator') {
+      navigate('/dashboard/default');
+      return;
+    }
+  }, [navigate]);
+
   // Lấy thông tin route và danh sách station của route
   useEffect(() => {
-    fetch(`https://api.metroticketingsystem.site/api/catalog/routes/${id}`, {
-      headers: { 'Accept': 'application/json' }
-    })
-      .then(res => res.json())
-      .then(data => {
+    if (!id || id === 'undefined') {
+      setError('Route ID không hợp lệ');
+      setLoading(false);
+      return;
+    }
+
+    const fetchRouteData = async () => {
+      try {
+        const response = await fetch(`https://api.metroticketingsystem.site/api/catalog/routes/${id}`, {
+          headers: { 'Accept': 'application/json' }
+        });
+
+        if (!response.ok) {
+          if (response.status === 404) {
+            throw new Error('Không tìm thấy tuyến đường này');
+          }
+          throw new Error(`Lỗi server: ${response.status}`);
+        }
+
+        const data = await response.json();
+        
+        if (!data || !data.data) {
+          throw new Error('Dữ liệu không hợp lệ');
+        }
+
         // Sắp xếp lại theo order nếu có
         const sortedStations = (data.data.stations || []).sort((a, b) => (a.order || 0) - (b.order || 0));
         setRoute(data.data);
         setStations(sortedStations);
-        setDistances(sortedStations.map(st => st.distanceToNext || 0));
+        // ✅ FORMAT DISTANCES VỚI 2 SỐ THẬP PHÂN
+        setDistances(sortedStations.map(st => formatDecimal(st.distanceToNext || 0)));
+        
+      } catch (err) {
+        console.error('Error fetching route:', err);
+        setError(err.message);
+      } finally {
         setLoading(false);
-      })
-      .catch(() => setLoading(false));
+      }
+    };
+
+    fetchRouteData();
   }, [id]);
 
   // Lấy danh sách tất cả các station (dùng cho select)
@@ -597,22 +1378,32 @@ const DetailRoute = () => {
       .then(res => res.json())
       .then(data => {
         setStationList(data.data.stations || []);
-      });
+      })
+      .catch(err => console.error('Error fetching stations:', err));
   }, []);
 
   // Thêm station đã chọn vào cuối danh sách
   const handleAddStation = () => {
     if (!selectedStationId) return;
     const addedStation = stationList.find(st => st.id === selectedStationId);
-    setStations(prev => [...prev, addedStation]);
-    setDistances(prev => [...prev, 0]);
-    setSelectedStationId('');
-    setOpenDialog(false);
+    if (addedStation) {
+      setStations(prev => [...prev, addedStation]);
+      setDistances(prev => [...prev, '0.00']); // ✅ FORMAT VỚI 2 SỐ THẬP PHÂN
+      setSelectedStationId('');
+      setOpenDialog(false);
+    }
+  };
+
+  // Xóa station khỏi danh sách
+  const handleRemoveStation = (indexToRemove) => {
+    setStations(prev => prev.filter((_, index) => index !== indexToRemove));
+    setDistances(prev => prev.filter((_, index) => index !== indexToRemove));
   };
 
   // Xử lý kéo thả
   const handleDragEnd = (result) => {
     if (!result.destination) return;
+    
     const newStations = Array.from(stations);
     const [removed] = newStations.splice(result.source.index, 1);
     newStations.splice(result.destination.index, 0, removed);
@@ -625,10 +1416,24 @@ const DetailRoute = () => {
     setDistances(newDistances);
   };
 
-  // Cập nhật khoảng cách
+  // ✅ CẬP NHẬT HÀM HANDLE DISTANCE CHANGE VỚI VALIDATION
   const handleDistanceChange = (idx, value) => {
+    // Kiểm tra input hợp lệ
+    if (value !== '' && !validateDistanceInput(value)) {
+      return; // Không cho phép nhập nếu không hợp lệ
+    }
+
     const newDistances = [...distances];
     newDistances[idx] = value;
+    setDistances(newDistances);
+  };
+
+  // ✅ THÊM HÀM XỬ LÝ KHI BLUR (RỜI KHỎI INPUT)
+  const handleDistanceBlur = (idx, value) => {
+    if (value === '') return;
+    
+    const newDistances = [...distances];
+    newDistances[idx] = formatDecimal(value); // Format về 2 số thập phân
     setDistances(newDistances);
   };
 
@@ -640,7 +1445,8 @@ const DetailRoute = () => {
         stationId: st.id || st.stationId,
         routeId: id,
         order: idx + 1,
-        distanceToNext: idx === stations.length - 1 ? 0 : parseFloat(distances[idx]) || 0
+        // ✅ PARSE FLOAT VỚI VALIDATION
+        distanceToNext: idx === stations.length - 1 ? 0 : (parseFloat(distances[idx]) || 0)
       }));
 
       const resRoute = await fetch('https://api.metroticketingsystem.site/api/catalog/Routes/station-route', {
@@ -656,31 +1462,75 @@ const DetailRoute = () => {
           }
         })
       });
-      if (!resRoute.ok) throw new Error('Lỗi khi cập nhật tuyến!' + await resRoute.text());
+
+      if (!resRoute.ok) {
+        const errorText = await resRoute.text();
+        throw new Error(`Lỗi khi cập nhật tuyến: ${errorText}`);
+      }
 
       // Reload lại danh sách station trong tuyến, sort theo order nếu có
-      fetch(`https://api.metroticketingsystem.site/api/catalog/routes/${id}`, {
+      const response = await fetch(`https://api.metroticketingsystem.site/api/catalog/routes/${id}`, {
         headers: { 'Accept': 'application/json' }
-      })
-        .then(res => res.json())
-        .then(data => {
-          const sortedStations = (data.data.stations || []).sort((a, b) => (a.order || 0) - (b.order || 0));
-          setRoute(data.data);
-          setStations(sortedStations);
-          setDistances(sortedStations.map(st => st.distanceToNext || 0));
-        });
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const sortedStations = (data.data.stations || []).sort((a, b) => (a.order || 0) - (b.order || 0));
+        setRoute(data.data);
+        setStations(sortedStations);
+        // ✅ FORMAT DISTANCES AFTER RELOAD
+        setDistances(sortedStations.map(st => formatDecimal(st.distanceToNext || 0)));
+      }
 
       alert('Đã lưu thay đổi!');
     } catch (err) {
-      alert('Không thể lưu thay đổi. Vui lòng thử lại!\n' + err.message);
+      alert(`Không thể lưu thay đổi: ${err.message}`);
       console.error(err);
     }
   };
 
-  if (loading) return <CircularProgress />;
+  // Loading state
+  if (loading) {
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="50vh">
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <Card sx={{ backgroundColor: '#ffebee' }}>
+        <CardContent>
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {error}
+          </Alert>
+          <Typography variant="h6" gutterBottom>
+            Có thể do:
+          </Typography>
+          <Typography component="ul">
+            <li>Route ID không tồn tại</li>
+            <li>Kết nối mạng bị gián đoạn</li>
+            <li>Server đang bảo trì</li>
+          </Typography>
+          <Stack direction="row" spacing={2} sx={{ mt: 2 }}>
+            <Button component={Link} to="/metro-routes" variant="contained">
+              Quay lại danh sách
+            </Button>
+            <Button onClick={() => window.location.reload()} variant="outlined">
+              Thử lại
+            </Button>
+          </Stack>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Route not found
   if (!route) {
     return (
-      <Card>
+      <Card sx={{ backgroundColor: '#ffebee' }}>
         <CardContent>
           <Typography variant="h5" color="error">Không tìm thấy tuyến đường!</Typography>
           <Button component={Link} to="/metro-routes" variant="contained" sx={{ mt: 2 }}>
@@ -692,82 +1542,153 @@ const DetailRoute = () => {
   }
 
   return (
-    <Card>
+    <Card sx={{ backgroundColor: '#e8f5e8' }}> {/* Background xanh lá */}
       <CardContent>
-        <Typography variant="h4" gutterBottom>
+        <Typography variant="h4" gutterBottom sx={{ color: '#2e7d32' }}>
           Chi tiết tuyến Metro
         </Typography>
-        <Typography variant="h6" gutterBottom>
+        <Typography variant="h6" gutterBottom sx={{ color: '#388e3c' }}>
           {route.name}
         </Typography>
         <Stack spacing={1} sx={{ mb: 2 }}>
           <Typography>Mã tuyến: <b>{route.code}</b></Typography>
-          <Typography>Chiều dài: <b>{route.lengthInKm} km</b></Typography>
+          {/* ✅ FORMAT CHIỀU DÀI VỚI 2 SỐ THẬP PHÂN */}
+          <Typography>Chiều dài: <b>{formatDecimal(route.lengthInKm)} km</b></Typography>
           <Typography component="span">
-            Trạng thái: <Chip label={route.status || 'Chưa rõ'} color={statusColor(route.status)} />
+            Trạng thái: <Chip label={route.status || 'Hoạt động'} color={statusColor(route.status)} />
           </Typography>
         </Stack>
+        
         <Stack direction="row" spacing={2} sx={{ mb: 1 }}>
-          <Typography variant="subtitle1" sx={{ mt: 1 }}>
-            Danh sách nhà ga:
+          <Typography variant="subtitle1" sx={{ mt: 1, fontWeight: 'bold' }}>
+            Danh sách nhà ga ({stations.length} ga):
           </Typography>
-          <Button variant="contained" onClick={() => setOpenDialog(true)}>
+          <Button 
+            variant="contained" 
+            onClick={() => setOpenDialog(true)}
+            sx={{ 
+              backgroundColor: '#4caf50', 
+              '&:hover': { backgroundColor: '#45a049' } 
+            }}
+          >
             Thêm nhà ga
           </Button>
         </Stack>
-        <Paper variant="outlined" sx={{ mb: 2 }}>
+
+        <Paper variant="outlined" sx={{ mb: 2, backgroundColor: '#f1f8f1', borderColor: '#81c784' }}>
           <DragDropContext onDragEnd={handleDragEnd}>
             <Droppable droppableId="stations">
               {(provided) => (
-                <List sx={{ width: '100%', bgcolor: 'background.paper' }} ref={provided.innerRef} {...provided.droppableProps}>
-                  {stations.map((station, index) => (
-                    <Draggable
-                      key={station.id || station.stationId || station.name}
-                      draggableId={String(station.id || station.stationId || station.name)}
-                      index={index}
-                    >
-                      {(provided) => (
-                        <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
-                          <ListItem>
-                            <ListItemText
-                              primary={`${index + 1}. ${station.name || station.stationName}`}
-                            />
-                          </ListItem>
-                          {index < stations.length - 1 && (
-                            <ListItem sx={{ pl: 6, pr: 6 }}>
-                              <TextField
-                                label="Khoảng cách đến ga tiếp theo (km)"
-                                type="number"
-                                value={distances[index] || ''}
-                                onChange={e => handleDistanceChange(index, e.target.value)}
-                                sx={{ width: 180 }}
-                                size="small"
-                                inputProps={{ min: 0, step: 0.01 }}
+                <List 
+                  sx={{ width: '100%', bgcolor: 'transparent' }} 
+                  ref={provided.innerRef} 
+                  {...provided.droppableProps}
+                >
+                  {stations.length === 0 ? (
+                    <ListItem>
+                      <ListItemText 
+                        primary="Chưa có ga nào trong tuyến" 
+                        sx={{ textAlign: 'center', fontStyle: 'italic', color: 'text.secondary' }}
+                      />
+                    </ListItem>
+                  ) : (
+                    stations.map((station, index) => (
+                      <Draggable
+                        key={station.id || station.stationId || station.name}
+                        draggableId={String(station.id || station.stationId || station.name)}
+                        index={index}
+                      >
+                        {(provided, snapshot) => (
+                          <div ref={provided.innerRef} {...provided.draggableProps}>
+                            <ListItem 
+                              sx={{ 
+                                backgroundColor: snapshot.isDragging ? '#c8e6c9' : '#ffffff',
+                                mb: 1, 
+                                borderRadius: 1,
+                                border: '1px solid #e0e0e0',
+                                boxShadow: snapshot.isDragging ? 3 : 1
+                              }}
+                            >
+                              <IconButton {...provided.dragHandleProps} size="small">
+                                <DragIndicatorIcon />
+                              </IconButton>
+                              <ListItemText
+                                primary={`${index + 1}. ${station.name || station.stationName}`}
+                                secondary={station.code ? `Mã: ${station.code}` : ''}
                               />
+                              <IconButton 
+                                onClick={() => handleRemoveStation(index)}
+                                color="error"
+                                size="small"
+                              >
+                                <DeleteIcon />
+                              </IconButton>
                             </ListItem>
-                          )}
-                        </div>
-                      )}
-                    </Draggable>
-                  ))}
+                            
+                            {index < stations.length - 1 && (
+                              <ListItem sx={{ pl: 6, pr: 6, backgroundColor: 'transparent' }}>
+                                <TextField
+                                  label="Khoảng cách đến ga tiếp theo (km)"
+                                  type="text" // ✅ ĐỔI THÀNH TEXT ĐỂ KIỂM SOÁT TỐT HỢN
+                                  value={distances[index] || ''}
+                                  onChange={e => handleDistanceChange(index, e.target.value)}
+                                  onBlur={e => handleDistanceBlur(index, e.target.value)} // ✅ THÊM BLUR EVENT
+                                  sx={{ 
+                                    width: 250,
+                                    '& .MuiOutlinedInput-root': {
+                                      backgroundColor: '#ffffff'
+                                    }
+                                  }}
+                                  size="small"
+                                  helperText={`Từ ga ${index + 1} đến ga ${index + 2} (tối đa 2 số thập phân)`}
+                                  placeholder="VD: 1.25"
+                                  // ✅ THÊM PATTERN ĐỂ HINT CHO NGƯỜI DÙNG
+                                  inputProps={{ 
+                                    pattern: "\\d*\\.?\\d{0,2}",
+                                    title: "Chỉ nhập số với tối đa 2 chữ số thập phân"
+                                  }}
+                                />
+                              </ListItem>
+                            )}
+                          </div>
+                        )}
+                      </Draggable>
+                    ))
+                  )}
                   {provided.placeholder}
                 </List>
               )}
             </Droppable>
           </DragDropContext>
         </Paper>
+
         <Stack direction="row" spacing={2}>
           <Button component={Link} to="/metro-routes" variant="outlined">
             Quay lại danh sách
           </Button>
-          <Button variant="contained" color="primary" onClick={handleSave}>
+          <Button 
+            variant="contained" 
+            color="primary" 
+            onClick={handleSave}
+            disabled={stations.length === 0}
+            sx={{ 
+              backgroundColor: '#4caf50', 
+              '&:hover': { backgroundColor: '#45a049' } 
+            }}
+          >
             Lưu thay đổi
           </Button>
         </Stack>
 
         {/* Dialog thêm nhà ga */}
-        <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
-          <DialogTitle>Thêm nhà ga vào tuyến</DialogTitle>
+        <Dialog 
+          open={openDialog} 
+          onClose={() => setOpenDialog(false)}
+          PaperProps={{
+            sx: { backgroundColor: '#e8f5e8' }
+          }}
+        >
+          <DialogTitle sx={{ color: '#2e7d32' }}>Thêm nhà ga vào tuyến</DialogTitle>
           <DialogContent>
             <TextField
               select
@@ -777,6 +1698,11 @@ const DetailRoute = () => {
               fullWidth
               margin="normal"
               required
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  backgroundColor: '#ffffff'
+                }
+              }}
             >
               <MenuItem value="">-- Chọn nhà ga --</MenuItem>
               {stationList
@@ -787,11 +1713,25 @@ const DetailRoute = () => {
                   </MenuItem>
                 ))}
             </TextField>
-            {/* Không nhập khoảng cách ở đây */}
+            {stationList.filter(st => !stations.some(s => (s.id || s.stationId) === st.id)).length === 0 && (
+              <Alert severity="warning" sx={{ mt: 2 }}>
+                Tất cả các ga đã được thêm vào tuyến
+              </Alert>
+            )}
           </DialogContent>
           <DialogActions>
             <Button onClick={() => setOpenDialog(false)}>Hủy</Button>
-            <Button onClick={handleAddStation} variant="contained">Thêm</Button>
+            <Button 
+              onClick={handleAddStation} 
+              variant="contained"
+              disabled={!selectedStationId}
+              sx={{ 
+                backgroundColor: '#4caf50', 
+                '&:hover': { backgroundColor: '#45a049' } 
+              }}
+            >
+              Thêm
+            </Button>
           </DialogActions>
         </Dialog>
       </CardContent>

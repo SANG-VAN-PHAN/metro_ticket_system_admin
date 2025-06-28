@@ -63,7 +63,7 @@ const AuthLogin = ({ ...rest }) => {
   return (
     <>
       <Grid container justifyContent="center">
-        <Grid item xs={12}>
+        {/* <Grid item xs={12}>
           <Button
             fullWidth={true}
             sx={{
@@ -92,14 +92,14 @@ const AuthLogin = ({ ...rest }) => {
             />{' '}
             Sign in with Google
           </Button>
-        </Grid>
+        </Grid> */}
       </Grid>
 
       <Box alignItems="center" display="flex" mt={2}>
         <Divider sx={{ flexGrow: 1 }} orientation="horizontal" />
-        <Typography color="textSecondary" variant="h5" sx={{ m: theme.spacing(2) }}>
+        {/* <Typography color="textSecondary" variant="h5" sx={{ m: theme.spacing(2) }}>
           OR
-        </Typography>
+        </Typography> */}
         <Divider sx={{ flexGrow: 1 }} orientation="horizontal" />
       </Box>
 
