@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Card, CardContent, Typography, TextField, Button, Snackbar, Alert } from '@mui/material';
+import { 
+  Card, CardContent, Typography, TextField, Button, 
+  Snackbar, Alert, Autocomplete, CircularProgress 
+} from '@mui/material';
 import { useParams, useNavigate } from 'react-router-dom';
 
 const UpdateBusRoute = () => {
@@ -10,40 +13,89 @@ const UpdateBusRoute = () => {
     stationId: '',
     destinationName: ''
   });
+  const [stations, setStations] = useState([]);
+  const [stationsLoading, setStationsLoading] = useState(false);
+  const [selectedStation, setSelectedStation] = useState(null);
   const [loading, setLoading] = useState(true);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
 
+  // Fetch stations
   useEffect(() => {
-    fetch('https://api.metroticketingsystem.site/api/catalog/Buses?currentPage=0', {
-      headers: { 'Accept': 'application/json' }
-    })
-      .then(res => res.json())
-      .then(data => {
+    const fetchStations = async () => {
+      setStationsLoading(true);
+      try {
+        const res = await fetch('https://api.metroticketingsystem.site/api/catalog/Stations', {
+          headers: { 'Accept': 'application/json' }
+        });
+        const data = await res.json();
+        if (data.succeeded && data.data && data.data.stations) {
+          setStations(data.data.stations);
+        }
+      } catch (err) {
+        console.error('Error fetching stations:', err);
+      } finally {
+        setStationsLoading(false);
+      }
+    };
+    
+    fetchStations();
+  }, []);
+
+  // Fetch bus route data
+  useEffect(() => {
+    const fetchBusRoute = async () => {
+      try {
+        const res = await fetch('https://api.metroticketingsystem.site/api/catalog/Buses?currentPage=0', {
+          headers: { 'Accept': 'application/json' }
+        });
+        const data = await res.json();
         const bus = (data.data.buses || []).find(b => b.id === id);
+        
         if (bus) {
           setForm({
             id: bus.id,
             stationId: bus.stationId || '',
             destinationName: bus.destinationName || ''
           });
+          
+          // Tìm station tương ứng để set vào selectedStation
+          if (bus.stationId && stations.length > 0) {
+            const station = stations.find(s => s.id === bus.stationId);
+            setSelectedStation(station || null);
+          }
         } else {
           setError('Không tìm thấy tuyến xe buýt!');
         }
-        setLoading(false);
-      })
-      .catch(() => {
+      } catch (err) {
         setError('Lỗi khi tải dữ liệu!');
+      } finally {
         setLoading(false);
-      });
-  }, [id]);
+      }
+    };
+
+    // Chỉ fetch bus route khi đã có stations
+    if (stations.length > 0) {
+      fetchBusRoute();
+    }
+  }, [id, stations]);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+  const handleStationChange = (event, newValue) => {
+    setSelectedStation(newValue);
+    setForm({ ...form, stationId: newValue ? newValue.id : '' });
+  };
+
   const handleUpdate = async (e) => {
     e.preventDefault();
+    if (!form.stationId) {
+      setError('Vui lòng chọn ga Metro');
+      return;
+    }
+    
     try {
       const res = await fetch('https://api.metroticketingsystem.site/api/catalog/Buses', {
         method: 'PUT',
@@ -76,42 +128,61 @@ const UpdateBusRoute = () => {
           Cập nhật tuyến xe buýt
         </Typography>
         <Button
-                                  variant="outlined"
-                                  color="secondary"
-                                  onClick={() => navigate('/bus-routes')}
-                                  sx={{ mb: 2 }}
-                                >
-                                  Quay lại danh sách
-                                </Button>
+          variant="outlined"
+          color="secondary"
+          onClick={() => navigate('/bus-routes')}
+          sx={{ mb: 2 }}
+        >
+          Quay lại danh sách
+        </Button>
+        
         {loading ? (
           <Typography>Đang tải...</Typography>
         ) : error ? (
           <Alert severity="error">{error}</Alert>
         ) : (
           <form onSubmit={handleUpdate}>
-            <TextField
-              label="Station ID"
-              name="stationId"
-              value={form.stationId}
-              onChange={handleChange}
-              fullWidth
-              margin="normal"
-              required
+            <Autocomplete
+              options={stations}
+              getOptionLabel={(option) => `${option.name} (${option.code})`}
+              value={selectedStation}
+              onChange={handleStationChange}
+              loading={stationsLoading}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Chọn ga Metro"
+                  margin="normal"
+                  required
+                  fullWidth
+                  InputProps={{
+                    ...params.InputProps,
+                    endAdornment: (
+                      <>
+                        {stationsLoading ? <CircularProgress color="inherit" size={20} /> : null}
+                        {params.InputProps.endAdornment}
+                      </>
+                    ),
+                  }}
+                />
+              )}
             />
             <TextField
-              label="Tên tuyến"
+              label="Tên điểm đến"
               name="destinationName"
               value={form.destinationName}
               onChange={handleChange}
               fullWidth
               margin="normal"
               required
+              placeholder="Ví dụ: Chợ Bến Thành, Công viên Tao Đàn..."
             />
             <Button type="submit" variant="contained" color="primary" sx={{ mt: 2 }}>
               Cập nhật
             </Button>
           </form>
         )}
+        
         <Snackbar open={success} autoHideDuration={2000} onClose={() => setSuccess(false)}>
           <Alert severity="success" sx={{ width: '100%' }}>
             Cập nhật tuyến xe buýt thành công!

@@ -1,258 +1,223 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Button, IconButton, Paper, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Snackbar, Alert } from '@mui/material';
-import EditIcon from '@mui/icons-material/Edit';
-import { useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
+import {
+  Card, CardContent, Typography, TextField, Button,
+  Stack, CircularProgress, Box, Snackbar, Alert, Avatar
+} from '@mui/material';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+
+// helper format address
+const formatAddress = ({ streetNumber, street, ward, district, city }) =>
+  [streetNumber, street, ward, district, city].filter(Boolean).join(', ');
+
 const UpdateStation = () => {
+  const { id } = useParams();
   const navigate = useNavigate();
-  const [stations, setStations] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [open, setOpen] = useState(false);
-  const [selected, setSelected] = useState(null);
+
   const [form, setForm] = useState({
-    id: '',
-    name: '',
-    code: '',
-    streetNumber: '',
-    street: '',
-    ward: '',
-    district: '',
-    city: '',
+    code: '', name: '', streetNumber: '',
+    street: '', ward: '', district: '', city: '',
     thumbnailImageUrl: ''
   });
-  const [success, setSuccess] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState(false);
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState('');
 
-  const fetchStations = () => {
-    setLoading(true);
-    fetch('https://api.metroticketingsystem.site/api/catalog/Stations', {
-      headers: { 'Accept': 'application/json' }
-    })
-      .then(res => res.json())
-      .then(data => {
-        setStations(data.data.stations || []);
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
-  };
-
+  // fetch single station
   useEffect(() => {
-    fetchStations();
-  }, []);
+    const load = async () => {
+      try {
+        const res = await fetch(`https://api.metroticketingsystem.site/api/catalog/Stations/${id}`, {
+          headers: { 'Accept': 'application/json' }
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const json = await res.json();
+        if (!json.succeeded || !json.data) throw new Error('Không tìm thấy trạm');
+        const s = json.data;
+        setForm({
+          code: s.code,
+          name: s.name,
+          streetNumber: s.streetNumber || '',
+          street: s.street || '',
+          ward: s.ward || '',
+          district: s.district || '',
+          city: s.city || '',
+          thumbnailImageUrl: s.thumbnailImageUrl === 'empty' ? '' : s.thumbnailImageUrl
+        });
+        setImagePreview(s.thumbnailImageUrl === 'empty' ? '' : s.thumbnailImageUrl);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    load();
+  }, [id]);
 
-  const handleOpen = (station) => {
-    setSelected(station);
-    setForm({
-      id: station.id,
-      name: station.name,
-      code: station.code,
-      streetNumber: station.streetNumber || '',
-      street: station.street || '',
-      ward: station.ward || '',
-      district: station.district || '',
-      city: station.city || '',
-      thumbnailImageUrl: station.thumbnailImageUrl === 'empty' ? '' : (station.thumbnailImageUrl || '')
-    });
-    setOpen(true);
+  const handleChange = e => {
+    setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const handleClose = () => {
-    setOpen(false);
-    setSelected(null);
-    setForm({
-      id: '',
-      name: '',
-      code: '',
-      streetNumber: '',
-      street: '',
-      ward: '',
-      district: '',
-      city: '',
-      thumbnailImageUrl: ''
-    });
-  };
-
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
-
-  const handleUpdate = async (e) => {
-  e.preventDefault();
-  try {
-    const res = await fetch('https://api.metroticketingsystem.site/api/catalog/Stations', {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'Accept': 'application/json'
-      },
-      body: new URLSearchParams({
-        id: form.id,
-        name: form.name,
-        code: form.code,
-        streetNumber: form.streetNumber,
-        street: form.street,
-        ward: form.ward,
-        district: form.district,
-        city: form.city,
-        thumbnailImageUrl: form.thumbnailImageUrl || 'empty'
-      }).toString()
-    });
-    if (!res.ok) {
-      const errMsg = await res.text();
-      setError('Không thể cập nhật ga. ' + errMsg);
-      return;
+  const handleImageChange = e => {
+    const file = e.target.files[0];
+    if (file) {
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onload = () => setImagePreview(reader.result);
+      reader.readAsDataURL(file);
     }
-    setSuccess(true);
-    handleClose();
-    fetchStations();
-  } catch (err) {
-    setError('Không thể cập nhật ga. Vui lòng thử lại!');
+  };
+
+  const handleSubmit = async e => {
+    e.preventDefault();
+    setSaving(true);
+    setError('');
+    try {
+      const formData = new FormData();
+      formData.append('id', id);
+      formData.append('code', form.code);
+      formData.append('name', form.name);
+      formData.append('streetNumber', form.streetNumber);
+      formData.append('street', form.street);
+      formData.append('ward', form.ward);
+      formData.append('district', form.district);
+      formData.append('city', form.city);
+      
+      if (imageFile) {
+        formData.append('ThumbnailImage', imageFile);
+      } else {
+        formData.append('thumbnailImageUrl', form.thumbnailImageUrl || 'empty');
+      }
+
+      const res = await fetch('https://api.metroticketingsystem.site/api/catalog/Stations', {
+        method: 'PUT',
+        headers: {
+          'Accept': 'application/json'
+        },
+        body: formData
+      });
+      
+      if (!res.ok) {
+        const msg = await res.text();
+        throw new Error(msg || res.statusText);
+      }
+      setSuccess(true);
+      setTimeout(() => navigate('/stations'), 1000);
+    } catch (err) {
+      setError('Cập nhật thất bại: ' + err.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <Box textAlign="center" py={10}>
+        <CircularProgress />
+      </Box>
+    );
   }
-};
 
   return (
     <Card>
       <CardContent>
         <Typography variant="h4" gutterBottom>
-          Cập nhật thông tin ga Metro
+          Cập nhật ga Metro
         </Typography>
-        <Button
-                          variant="outlined"
-                          color="secondary"
-                          onClick={() => navigate('/stations')}
-                          sx={{ mb: 2 }}
-                        >
-                          Quay lại danh sách
-                        </Button>
-        <TableContainer component={Paper}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Mã ga</TableCell>
-                <TableCell>Tên ga</TableCell>
-                <TableCell>Địa chỉ</TableCell>
-                <TableCell>Hành động</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {loading ? (
-                <TableRow>
-                  <TableCell colSpan={4} align="center">Đang tải...</TableCell>
-                </TableRow>
-              ) : stations.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={4} align="center">Không có dữ liệu</TableCell>
-                </TableRow>
-              ) : (
-                stations.map((station) => (
-                  <TableRow key={station.id}>
-                    <TableCell>{station.code}</TableCell>
-                    <TableCell>{station.name}</TableCell>
-                    <TableCell>
-                      {[station.streetNumber, station.street, station.ward, station.district, station.city]
-                        .filter(Boolean)
-                        .join(', ') || 'Chưa cập nhật'}
-                    </TableCell>
-                    <TableCell>
-                      <IconButton color="primary" onClick={() => handleOpen(station)}>
-                        <EditIcon />
-                      </IconButton>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </TableContainer>
-
-        <Dialog open={open} onClose={handleClose}>
-          <DialogTitle>Cập nhật ga Metro</DialogTitle>
-          <form onSubmit={handleUpdate}>
-            <DialogContent>
-              <TextField
-                label="Tên ga"
-                name="name"
-                value={form.name}
-                onChange={handleChange}
+        <form onSubmit={handleSubmit}>
+          <Stack spacing={2}>
+            <TextField
+              label="Mã ga" name="code" value={form.code}
+              onChange={handleChange} required fullWidth
+            />
+            <TextField
+              label="Tên ga" name="name" value={form.name}
+              onChange={handleChange} required fullWidth
+            />
+            <TextField
+              label="Số nhà" name="streetNumber"
+              value={form.streetNumber} onChange={handleChange} fullWidth
+            />
+            <TextField
+              label="Đường" name="street"
+              value={form.street} onChange={handleChange} fullWidth
+            />
+            <TextField
+              label="Phường" name="ward"
+              value={form.ward} onChange={handleChange} fullWidth
+            />
+            <TextField
+              label="Quận" name="district"
+              value={form.district} onChange={handleChange} fullWidth
+            />
+            <TextField
+              label="Thành phố" name="city"
+              value={form.city} onChange={handleChange} fullWidth
+            />
+            
+            {/* Upload ảnh */}
+            <Box>
+              <Button
+                component="label"
+                variant="outlined"
+                startIcon={<CloudUploadIcon />}
                 fullWidth
-                margin="normal"
-                required
-              />
-              <TextField
-                label="Mã ga"
-                name="code"
-                value={form.code}
-                onChange={handleChange}
-                fullWidth
-                margin="normal"
-                required
-              />
-              <TextField
-                label="Số nhà"
-                name="streetNumber"
-                value={form.streetNumber}
-                onChange={handleChange}
-                fullWidth
-                margin="normal"
-              />
-              <TextField
-                label="Tên đường"
-                name="street"
-                value={form.street}
-                onChange={handleChange}
-                fullWidth
-                margin="normal"
-              />
-              <TextField
-                label="Phường"
-                name="ward"
-                value={form.ward}
-                onChange={handleChange}
-                fullWidth
-                margin="normal"
-              />
-              <TextField
-                label="Quận"
-                name="district"
-                value={form.district}
-                onChange={handleChange}
-                fullWidth
-                margin="normal"
-              />
-              <TextField
-                label="Thành phố"
-                name="city"
-                value={form.city}
-                onChange={handleChange}
-                fullWidth
-                margin="normal"
-              />
-              <TextField
-                label="Ảnh đại diện (URL)"
-                name="thumbnailImageUrl"
-                value={form.thumbnailImageUrl}
-                onChange={handleChange}
-                fullWidth
-                margin="normal"
-                placeholder="https://..."
-              />
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={handleClose}>Hủy</Button>
-              <Button type="submit" variant="contained">
-                Cập nhật
+              >
+                Chọn ảnh ga
+                <input
+                  type="file"
+                  hidden
+                  accept="image/*"
+                  onChange={handleImageChange}
+                />
               </Button>
-            </DialogActions>
-          </form>
-        </Dialog>
-        <Snackbar open={success} autoHideDuration={2000} onClose={() => setSuccess(false)}>
-          <Alert severity="success" sx={{ width: '100%' }}>
-            Cập nhật ga thành công!
-          </Alert>
+              {imagePreview && (
+                <Box mt={2} textAlign="center">
+                  <Avatar
+                    src={imagePreview}
+                    alt="Preview"
+                    sx={{ width: 120, height: 120, mx: 'auto' }}
+                    variant="rounded"
+                  />
+                </Box>
+              )}
+            </Box>
+
+            <Box>
+              <Typography variant="body2" color="text.secondary">
+                Địa chỉ đầy đủ: {formatAddress(form)}
+              </Typography>
+            </Box>
+            <Stack direction="row" spacing={2}>
+              <Button
+                type="submit"
+                variant="contained"
+                disabled={saving}
+              >
+                {saving ? 'Đang lưu...' : 'Lưu thay đổi'}
+              </Button>
+              <Button component={Link} to="/stations">
+                Hủy
+              </Button>
+            </Stack>
+          </Stack>
+        </form>
+        <Snackbar
+          open={!!error}
+          autoHideDuration={4000}
+          onClose={() => setError('')}
+        >
+          <Alert severity="error">{error}</Alert>
         </Snackbar>
-        <Snackbar open={!!error} autoHideDuration={3000} onClose={() => setError('')}>
-          <Alert severity="error" sx={{ width: '100%' }}>
-            {error}
-          </Alert>
+        <Snackbar
+          open={success}
+          autoHideDuration={2000}
+          onClose={() => setSuccess(false)}
+        >
+          <Alert severity="success">Cập nhật thành công!</Alert>
         </Snackbar>
       </CardContent>
     </Card>

@@ -142,6 +142,7 @@ const UpdateStaff = Loadable(lazy(() => import('component/Staff/UpdateStaff')));
 const CreateStation = Loadable(lazy(() => import('component/Stations/CreateStation')));
 const DeleteStation = Loadable(lazy(() => import('component/Stations/DeleteStation')));
 const UpdateStation = Loadable(lazy(() => import('component/Stations/UpdateStation')));
+const DetailStation = Loadable(lazy(() => import('component/Stations/DetailStation')));
 
 const CreateRoute = Loadable(lazy(() => import('component/Routes/CreateRoute')));
 const DeleteRoute = Loadable(lazy(() => import('component/Routes/DeleteRoute')));
@@ -151,6 +152,7 @@ const DetailRoute = Loadable(lazy(() => import('component/Routes/DetailRoute')))
 const CreateTicket = Loadable(lazy(() => import('component/Ticket/CreateTicket')));
 const DeleteTicket = Loadable(lazy(() => import('component/Ticket/DeleteTicket')));
 const UpdateTicket = Loadable(lazy(() => import('component/Ticket/UpdateTicket')));
+const DetailTicket = Loadable(lazy(() => import('component/Ticket/DetailTicket')));
 
 const CreateBusRoute = Loadable(lazy(() => import('component/BusRoutes/CreateBusRoute')));
 const DeleteBusRoute = Loadable(lazy(() => import('component/BusRoutes/DeleteBusRoute')));
@@ -244,19 +246,21 @@ const MainRoutes = {
 
     // Station management routes - Administrator only
     { path: '/stations/create', element: <RoleBasedRoute allowedRoles={['Administrator']}><CreateStation /></RoleBasedRoute> },
-    { path: '/stations/delete', element: <RoleBasedRoute allowedRoles={['Administrator']}><DeleteStation /></RoleBasedRoute> },
-    { path: '/stations/update', element: <RoleBasedRoute allowedRoles={['Administrator']}><UpdateStation /></RoleBasedRoute> },
+    { path: '/stations/delete/:id', element: <RoleBasedRoute allowedRoles={['Administrator']}><DeleteStation /></RoleBasedRoute> },
+    { path: '/stations/update/:id', element: <RoleBasedRoute allowedRoles={['Administrator']}><UpdateStation /></RoleBasedRoute> },
+    { path: '/stations/:id', element: <RoleBasedRoute allowedRoles={['Administrator']}><DetailStation /></RoleBasedRoute> },
 
     // Metro routes management - Administrator only
     { path: '/metro-routes/create', element: <RoleBasedRoute allowedRoles={['Administrator']}><CreateRoute /></RoleBasedRoute> },
     { path: '/metro-routes/delete', element: <RoleBasedRoute allowedRoles={['Administrator']}><DeleteRoute /></RoleBasedRoute> },
-    { path: '/metro-routes/update', element: <RoleBasedRoute allowedRoles={['Administrator']}><UpdateRoute /></RoleBasedRoute> },
+    { path: '/metro-routes/update/:id', element: <RoleBasedRoute allowedRoles={['Administrator']}><UpdateRoute /></RoleBasedRoute> },
     { path: '/metro-routes/:id', element: <RoleBasedRoute allowedRoles={['Administrator']}><DetailRoute /></RoleBasedRoute> },
 
     // Ticket management routes - Administrator only
     { path: '/ticket/create', element: <RoleBasedRoute allowedRoles={['Administrator']}><CreateTicket /></RoleBasedRoute> },
     { path: '/ticket/delete', element: <RoleBasedRoute allowedRoles={['Administrator']}><DeleteTicket /></RoleBasedRoute> },
     { path: '/ticket/update', element: <RoleBasedRoute allowedRoles={['Administrator']}><UpdateTicket /></RoleBasedRoute> },
+    { path: '/ticket/:id', element: <RoleBasedRoute allowedRoles={['Administrator']}><DetailTicket /></RoleBasedRoute> },
 
     // Staff management routes - Administrator only
     { path: '/staff/create', element: <RoleBasedRoute allowedRoles={['Administrator']}><CreateStaff /></RoleBasedRoute> },

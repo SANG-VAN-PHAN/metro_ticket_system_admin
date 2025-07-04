@@ -1,92 +1,144 @@
-import React from 'react';
-import { Card, CardContent, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Chip, Paper, Stack, Button } from '@mui/material';
+// import React, { useEffect, useState } from 'react';
+// import {
+//   Card, CardContent, Typography, Table, TableBody, TableCell, TableContainer,
+//   TableHead, TableRow, Paper, Stack, CircularProgress
+// } from '@mui/material';
+
+// // Hàm format số tiền với 2 số sau dấu phẩy
+// const formatPrice = (value) => {
+//   if (value === null || value === undefined) return '0.00';
+//   return Number(value).toFixed(2);
+// };
+
+// const ViewTickets = () => {
+//   const [tickets, setTickets] = useState([]);
+//   const [loading, setLoading] = useState(true);
+
+//   useEffect(() => {
+//     fetch('https://api.metroticketingsystem.site/api/catalog/Tickets')
+//       .then(res => res.json())
+//       .then(data => {
+//         setTickets(data);
+//         setLoading(false);
+//       })
+//       .catch(() => setLoading(false));
+//   }, []);
+
+//   if (loading) return <CircularProgress />;
+
+//   return (
+//     <Card>
+//       <CardContent>
+//         <Typography variant="h4" gutterBottom>
+//           Danh sách vé
+//         </Typography>
+//         <TableContainer component={Paper}>
+//           <Table>
+//             <TableHead>
+//               <TableRow>
+//                 <TableCell>Tên vé</TableCell>
+//                 <TableCell>Thời hạn (ngày)</TableCell>
+//                 <TableCell>Giá (VNĐ)</TableCell>
+//                 <TableCell>Loại vé</TableCell>
+//                 <TableCell>Hiệu lực (ngày)</TableCell>
+//               </TableRow>
+//             </TableHead>
+//             <TableBody>
+//               {tickets.map((ticket) => (
+//                 <TableRow key={ticket.id}>
+//                   <TableCell>{ticket.name}</TableCell>
+//                   <TableCell>{ticket.expirationInDay}</TableCell>
+//                   <TableCell>{formatPrice(ticket.price)}</TableCell>
+//                   <TableCell>{ticket.ticketType}</TableCell>
+//                   <TableCell>{ticket.activeInDay}</TableCell>
+//                 </TableRow>
+//               ))}
+//             </TableBody>
+//           </Table>
+//         </TableContainer>
+//       </CardContent>
+//     </Card>
+//   );
+// };
+
+// export default ViewTickets;
+
+
+
+
+import React, { useEffect, useState } from 'react';
+import {
+  Card, CardContent, Typography, Table, TableBody, TableCell, TableContainer,
+  TableHead, TableRow, Paper, Stack, CircularProgress, Button
+} from '@mui/material';
 import { Link } from 'react-router-dom';
 
-const tickets = [
-  {
-    id: 1,
-    code: 'TKT001',
-    route: 'Tuyến số 1',
-    customer: 'Nguyễn Văn A',
-    price: 15000,
-    status: 'Đã sử dụng'
-  },
-  {
-    id: 2,
-    code: 'TKT002',
-    route: 'Tuyến số 2',
-    customer: 'Trần Thị B',
-    price: 20000,
-    status: 'Chưa sử dụng'
-  },
-  {
-    id: 3,
-    code: 'TKT003',
-    route: 'Tuyến số 1',
-    customer: 'Lê Văn C',
-    price: 15000,
-    status: 'Đã hủy'
-  }
-];
-
-const statusColor = (status) => {
-  switch (status) {
-    case 'Đã sử dụng':
-      return 'success';
-    case 'Chưa sử dụng':
-      return 'warning';
-    case 'Đã hủy':
-      return 'error';
-    default:
-      return 'default';
-  }
+// Hàm format số tiền với 2 số sau dấu phẩy
+const formatPrice = (value) => {
+  if (value === null || value === undefined) return '0.00';
+  return Number(value).toFixed(2);
 };
 
-const ViewTicket = () => (
-  <Card>
-    <CardContent>
-      <Typography variant="h4" gutterBottom>
-        Danh sách vé
-      </Typography>
-      <Stack direction="row" spacing={2} sx={{ mb: 2 }}>
-        <Button component={Link} to="/ticket/create" variant="contained" color="primary">
-          Thêm vé mới
-        </Button>
-        <Button component={Link} to="/ticket/delete" variant="outlined" color="error">
-          Xóa vé
-        </Button>
-        <Button component={Link} to="/ticket/update" variant="outlined" color="secondary">
-          Cập nhật vé
-        </Button>
-      </Stack>
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Mã vé</TableCell>
-              <TableCell>Tuyến</TableCell>
-              <TableCell>Khách hàng</TableCell>
-              <TableCell>Giá vé</TableCell>
-              <TableCell>Trạng thái</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {tickets.map((ticket) => (
-              <TableRow key={ticket.id}>
-                <TableCell>{ticket.code}</TableCell>
-                <TableCell>{ticket.route}</TableCell>
-                <TableCell>{ticket.customer}</TableCell>
-                <TableCell>{ticket.price.toLocaleString()} đ</TableCell>
-                <TableCell>
-                  <Chip label={ticket.status} color={statusColor(ticket.status)} />
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-    </CardContent>
-  </Card>
-);
+const ViewTickets = () => {
+  const [tickets, setTickets] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-export default ViewTicket;
+  useEffect(() => {
+    fetch('https://api.metroticketingsystem.site/api/catalog/Tickets')
+      .then(res => res.json())
+      .then(data => {
+        setTickets(data);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, []);
+
+  if (loading) return <CircularProgress />;
+
+  return (
+    <Card>
+      <CardContent>
+        <Typography variant="h4" gutterBottom>
+          Danh sách vé
+        </Typography>
+        <TableContainer component={Paper}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>Tên vé</TableCell>
+                <TableCell>Thời hạn (ngày)</TableCell>
+                <TableCell>Giá (VNĐ)</TableCell>
+                <TableCell>Loại vé</TableCell>
+                <TableCell>Hiệu lực (ngày)</TableCell>
+                <TableCell>Chi tiết</TableCell> {/* Thêm cột Chi tiết */}
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {tickets.map((ticket) => (
+                <TableRow key={ticket.id}>
+                  <TableCell>{ticket.name}</TableCell>
+                  <TableCell>{ticket.expirationInDay}</TableCell>
+                  <TableCell>{formatPrice(ticket.price)}</TableCell>
+                  <TableCell>{ticket.ticketType}</TableCell>
+                  <TableCell>{ticket.activeInDay}</TableCell>
+                  <TableCell>
+                    <Button
+                      component={Link}
+                      to={`/ticket/${ticket.id}`}
+                      variant="outlined"
+                      size="small"
+                    >
+                      Xem chi tiết
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </CardContent>
+    </Card>
+  );
+};
+
+export default ViewTickets;
