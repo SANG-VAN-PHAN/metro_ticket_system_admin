@@ -1,34 +1,86 @@
 import React, { useState } from 'react';
-import { Card, CardContent, Typography, TextField, Button, MenuItem, Snackbar, Alert } from '@mui/material';
+import { 
+  Card, CardContent, Typography, TextField, Button, 
+  Snackbar, Alert, CircularProgress 
+} from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 
 const CreateStaff = () => {
+  const navigate = useNavigate();
   const [form, setForm] = useState({
-    name: '',
-    position: '',
     email: '',
-    phone: '',
-    status: 'Đang làm việc'
+    password: '',
+    firstName: '',
+    lastName: ''
   });
-  const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState('');
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Xử lý gửi dữ liệu lên API hoặc lưu local tại đây
-    setOpen(true);
-    setForm({
-      name: '',
-      position: '',
-      email: '',
-      phone: '',
-      status: 'Đang làm việc'
-    });
-  };
+    
+    if (!form.email || !form.password || !form.firstName || !form.lastName) {
+      setError('Vui lòng điền đầy đủ thông tin');
+      return;
+    }
 
-  const handleClose = () => setOpen(false);
+    setLoading(true);
+    setError('');
+
+    try {
+      // ✅ Gọi API register với role cố định là Staff
+      const response = await fetch(`https://api.metroticketingsystem.site/api/user/Auth/staff/register`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+          email: form.email,
+          password: form.password,
+          firstName: form.firstName,
+          lastName: form.lastName
+        })
+      });
+
+      console.log('Register response status:', response.status);
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.log('Register error response:', errorText);
+        throw new Error(errorText || 'Không thể tạo tài khoản nhân viên');
+      }
+
+      const data = await response.json();
+      console.log('Register success:', data);
+      
+      setSuccess(true);
+      
+      // ✅ Reset form
+      setForm({
+        email: '',
+        password: '',
+        firstName: '',
+        lastName: ''
+      });
+      
+      // Redirect sau 2 giây
+      setTimeout(() => {
+        navigate('/staff');
+      }, 2000);
+      
+    } catch (err) {
+      console.error('Register error:', err);
+      setError(err.message || 'Có lỗi xảy ra khi tạo tài khoản nhân viên');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <Card>
@@ -36,25 +88,39 @@ const CreateStaff = () => {
         <Typography variant="h4" gutterBottom>
           Thêm nhân viên mới
         </Typography>
+        
+        <Button
+          variant="outlined"
+          color="secondary"
+          onClick={() => navigate('/staff')}
+          sx={{ mb: 2 }}
+        >
+          Quay lại danh sách
+        </Button>
+        
         <form onSubmit={handleSubmit}>
           <TextField
-            label="Họ và tên"
-            name="name"
-            value={form.name}
+            label="Họ"
+            name="firstName"
+            value={form.firstName}
             onChange={handleChange}
             fullWidth
             margin="normal"
             required
+            disabled={loading}
           />
+          
           <TextField
-            label="Chức vụ"
-            name="position"
-            value={form.position}
+            label="Tên"
+            name="lastName"
+            value={form.lastName}
             onChange={handleChange}
             fullWidth
             margin="normal"
             required
+            disabled={loading}
           />
+          
           <TextField
             label="Email"
             name="email"
@@ -64,35 +130,52 @@ const CreateStaff = () => {
             fullWidth
             margin="normal"
             required
+            disabled={loading}
+            placeholder="example@company.com"
           />
+          
           <TextField
-            label="Số điện thoại"
-            name="phone"
-            value={form.phone}
+            label="Mật khẩu"
+            name="password"
+            type="password"
+            value={form.password}
             onChange={handleChange}
             fullWidth
             margin="normal"
             required
+            disabled={loading}
+            placeholder="Ít nhất 6 ký tự"
+            inputProps={{ minLength: 6 }}
           />
-          <TextField
-            select
-            label="Trạng thái"
-            name="status"
-            value={form.status}
-            onChange={handleChange}
+          
+          <Button 
+            type="submit" 
+            variant="contained" 
+            color="primary" 
             fullWidth
-            margin="normal"
+            sx={{ mt: 2 }}
+            disabled={loading}
           >
-            <MenuItem value="Đang làm việc">Đang làm việc</MenuItem>
-            <MenuItem value="Đã nghỉ việc">Đã nghỉ việc</MenuItem>
-          </TextField>
-          <Button type="submit" variant="contained" color="primary" sx={{ mt: 2 }}>
-            Thêm nhân viên
+            {loading ? (
+              <>
+                <CircularProgress size={20} sx={{ mr: 1 }} />
+                Đang tạo tài khoản...
+              </>
+            ) : (
+              'Thêm nhân viên'
+            )}
           </Button>
         </form>
-        <Snackbar open={open} autoHideDuration={3000} onClose={handleClose}>
-          <Alert onClose={handleClose} severity="success" sx={{ width: '100%' }}>
-            Thêm nhân viên thành công!
+        
+        <Snackbar open={success} autoHideDuration={3000} onClose={() => setSuccess(false)}>
+          <Alert severity="success" sx={{ width: '100%' }}>
+            Tạo tài khoản nhân viên thành công!
+          </Alert>
+        </Snackbar>
+        
+        <Snackbar open={!!error} autoHideDuration={4000} onClose={() => setError('')}>
+          <Alert severity="error" sx={{ width: '100%' }}>
+            {error}
           </Alert>
         </Snackbar>
       </CardContent>
