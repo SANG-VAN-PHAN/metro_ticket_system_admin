@@ -1,34 +1,74 @@
 import React, { useState } from 'react';
 import { Card, CardContent, Typography, TextField, Button, MenuItem, Snackbar, Alert } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 
 const CreateTicket = () => {
+  const navigate = useNavigate();
   const [form, setForm] = useState({
-    code: '',
-    route: '',
-    customer: '',
+    name: '',
     price: '',
-    status: 'Chưa sử dụng'
+    activeInDay: '',
+    expirationInDay: '',
+    ticketType: 1
   });
-  const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState('');
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Xử lý gửi dữ liệu lên API hoặc lưu local tại đây
-    setOpen(true);
-    setForm({
-      code: '',
-      route: '',
-      customer: '',
-      price: '',
-      status: 'Chưa sử dụng'
-    });
+    setLoading(true);
+    setError('');
+
+    try {
+      const response = await fetch('https://api.metroticketingsystem.site/api/catalog/Tickets', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+          name: form.name,
+          price: parseFloat(form.price),
+          activeInDay: parseInt(form.activeInDay),
+          expirationInDay: parseInt(form.expirationInDay),
+          ticketType: parseInt(form.ticketType)
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Không thể tạo vé. Vui lòng thử lại!');
+      }
+
+      setSuccess(true);
+      setForm({
+        name: '',
+        price: '',
+        activeInDay: '',
+        expirationInDay: '',
+        ticketType: 1
+      });
+
+      // Chuyển về trang danh sách sau 2 giây
+      setTimeout(() => {
+        navigate('/ticket');
+      }, 2000);
+
+    } catch (err) {
+      setError(err.message || 'Có lỗi xảy ra. Vui lòng thử lại!');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleClose = () => setOpen(false);
+  const handleClose = () => {
+    setSuccess(false);
+    setError('');
+  };
 
   return (
     <Card>
@@ -36,36 +76,29 @@ const CreateTicket = () => {
         <Typography variant="h4" gutterBottom>
           Thêm vé mới
         </Typography>
+        <Button
+          variant="outlined"
+          color="secondary"
+          onClick={() => navigate('/ticket')}
+          sx={{ mb: 2 }}
+        >
+          Quay lại danh sách
+        </Button>
+        
         <form onSubmit={handleSubmit}>
           <TextField
-            label="Mã vé"
-            name="code"
-            value={form.code}
+            label="Tên vé"
+            name="name"
+            value={form.name}
             onChange={handleChange}
             fullWidth
             margin="normal"
             required
+            placeholder="Ví dụ: Vé 1 ngày, Vé 3 ngày..."
           />
+          
           <TextField
-            label="Tuyến"
-            name="route"
-            value={form.route}
-            onChange={handleChange}
-            fullWidth
-            margin="normal"
-            required
-          />
-          <TextField
-            label="Khách hàng"
-            name="customer"
-            value={form.customer}
-            onChange={handleChange}
-            fullWidth
-            margin="normal"
-            required
-          />
-          <TextField
-            label="Giá vé"
+            label="Giá vé (VNĐ)"
             name="price"
             type="number"
             value={form.price}
@@ -73,27 +106,71 @@ const CreateTicket = () => {
             fullWidth
             margin="normal"
             required
+            inputProps={{ min: 0, step: 0.01 }}
+            placeholder="Ví dụ: 20000"
           />
+          
           <TextField
-            select
-            label="Trạng thái"
-            name="status"
-            value={form.status}
+            label="Thời gian hiệu lực (ngày)"
+            name="activeInDay"
+            type="number"
+            value={form.activeInDay}
             onChange={handleChange}
             fullWidth
             margin="normal"
+            required
+            inputProps={{ min: 1 }}
+            placeholder="Số ngày vé có hiệu lực"
+          />
+          
+          <TextField
+            label="Thời hạn sử dụng (ngày)"
+            name="expirationInDay"
+            type="number"
+            value={form.expirationInDay}
+            onChange={handleChange}
+            fullWidth
+            margin="normal"
+            required
+            inputProps={{ min: 1 }}
+            placeholder="Số ngày tối đa có thể sử dụng"
+          />
+          
+          <TextField
+            select
+            label="Loại vé"
+            name="ticketType"
+            value={form.ticketType}
+            onChange={handleChange}
+            fullWidth
+            margin="normal"
+            required
           >
-            <MenuItem value="Chưa sử dụng">Chưa sử dụng</MenuItem>
-            <MenuItem value="Đã sử dụng">Đã sử dụng</MenuItem>
-            <MenuItem value="Đã hủy">Đã hủy</MenuItem>
+            <MenuItem value={1}>Vé lượt</MenuItem>
+            <MenuItem value={2}>Vé ngày</MenuItem>
+            <MenuItem value={3}>Vé học sinh sinh viên</MenuItem>
           </TextField>
-          <Button type="submit" variant="contained" color="primary" sx={{ mt: 2 }}>
-            Thêm vé
+          
+          <Button 
+            type="submit" 
+            variant="contained" 
+            color="primary" 
+            sx={{ mt: 2 }}
+            disabled={loading}
+          >
+            {loading ? 'Đang tạo...' : 'Thêm vé'}
           </Button>
         </form>
-        <Snackbar open={open} autoHideDuration={3000} onClose={handleClose}>
+        
+        <Snackbar open={success} autoHideDuration={3000} onClose={handleClose}>
           <Alert onClose={handleClose} severity="success" sx={{ width: '100%' }}>
-            Thêm vé thành công!
+            Thêm vé thành công! Đang chuyển về danh sách...
+          </Alert>
+        </Snackbar>
+        
+        <Snackbar open={!!error} autoHideDuration={4000} onClose={handleClose}>
+          <Alert onClose={handleClose} severity="error" sx={{ width: '100%' }}>
+            {error}
           </Alert>
         </Snackbar>
       </CardContent>

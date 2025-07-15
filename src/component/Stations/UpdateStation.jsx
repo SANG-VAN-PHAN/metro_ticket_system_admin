@@ -132,6 +132,7 @@ const UpdateStation = () => {
             <TextField
               label="Mã ga" name="code" value={form.code}
               onChange={handleChange} required fullWidth
+              disabled
             />
             <TextField
               label="Tên ga" name="name" value={form.name}

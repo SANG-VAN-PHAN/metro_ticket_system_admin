@@ -259,7 +259,7 @@ const MainRoutes = {
     // Ticket management routes - Administrator only
     { path: '/ticket/create', element: <RoleBasedRoute allowedRoles={['Administrator']}><CreateTicket /></RoleBasedRoute> },
     { path: '/ticket/delete', element: <RoleBasedRoute allowedRoles={['Administrator']}><DeleteTicket /></RoleBasedRoute> },
-    { path: '/ticket/update', element: <RoleBasedRoute allowedRoles={['Administrator']}><UpdateTicket /></RoleBasedRoute> },
+    { path: '/ticket/update/:id', element: <RoleBasedRoute allowedRoles={['Administrator']}><UpdateTicket /></RoleBasedRoute> },
     { path: '/ticket/:id', element: <RoleBasedRoute allowedRoles={['Administrator']}><DetailTicket /></RoleBasedRoute> },
 
     // Staff management routes - Administrator only
