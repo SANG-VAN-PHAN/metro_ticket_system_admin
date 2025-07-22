@@ -84,6 +84,13 @@ const ViewStaff = () => {
           >
             Đã khóa
           </Button>
+           <Button
+      variant="contained"
+      color="success"
+      onClick={() => navigate('/staff/create')}
+    >
+      Thêm nhân viên
+    </Button>
         </Stack>
         {loading ? (
           <CircularProgress />
