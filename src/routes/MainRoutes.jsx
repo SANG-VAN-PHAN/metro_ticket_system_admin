@@ -134,10 +134,12 @@ const TransactionHistory = Loadable(lazy(() => import('component/TransactionHist
 const CreatePromotion = Loadable(lazy(() => import('component/Promotion/CreatePromotion')));
 const StudentRequest = Loadable(lazy(() => import('component/StudentRequest/ViewStudentRequest')));
 const DetailStudentRequest = Loadable(lazy(() => import('component/StudentRequest/DetailStudentRequest')));
+const ViewCustomers = Loadable(lazy(() => import('component/Customers/ViewCustomers')));
 
 const CreateStaff = Loadable(lazy(() => import('component/Staff/CreateStaff')));
 const DeleteStaff = Loadable(lazy(() => import('component/Staff/DeleteStaff')));
 const UpdateStaff = Loadable(lazy(() => import('component/Staff/UpdateStaff')));
+const DetailStaff = Loadable(lazy(() => import('component/Staff/DetailStaff')));
 
 const CreateStation = Loadable(lazy(() => import('component/Stations/CreateStation')));
 const DeleteStation = Loadable(lazy(() => import('component/Stations/DeleteStation')));
@@ -243,6 +245,7 @@ const MainRoutes = {
     { path: '/ticket', element: <RoleBasedRoute allowedRoles={['Administrator']}><ViewTicket /></RoleBasedRoute> },
     { path: '/transaction-history', element: <RoleBasedRoute allowedRoles={['Administrator']}><TransactionHistory /></RoleBasedRoute> },
     { path: '/promotion/create', element: <RoleBasedRoute allowedRoles={['Administrator']}><CreatePromotion /></RoleBasedRoute> },
+    { path: '/customers', element: <RoleBasedRoute allowedRoles={['Administrator']}><ViewCustomers /></RoleBasedRoute> },
 
     // Station management routes - Administrator only
     { path: '/stations/create', element: <RoleBasedRoute allowedRoles={['Administrator']}><CreateStation /></RoleBasedRoute> },
@@ -265,7 +268,8 @@ const MainRoutes = {
     // Staff management routes - Administrator only
     { path: '/staff/create', element: <RoleBasedRoute allowedRoles={['Administrator']}><CreateStaff /></RoleBasedRoute> },
     { path: '/staff/delete', element: <RoleBasedRoute allowedRoles={['Administrator']}><DeleteStaff /></RoleBasedRoute> },
-    { path: '/staff/update', element: <RoleBasedRoute allowedRoles={['Administrator']}><UpdateStaff /></RoleBasedRoute> },
+    { path: '/staff/update/:id', element: <RoleBasedRoute allowedRoles={['Administrator']}><UpdateStaff /></RoleBasedRoute> },
+    { path: '/staff/:id', element: <RoleBasedRoute allowedRoles={['Administrator']}><DetailStaff /></RoleBasedRoute> },
 
     // Bus routes management - Administrator only
     { path: '/bus-routes/create', element: <RoleBasedRoute allowedRoles={['Administrator']}><CreateBusRoute /></RoleBasedRoute> },

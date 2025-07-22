@@ -1,52 +1,90 @@
-import React, { useState } from 'react';
-import { Card, CardContent, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Button, IconButton, Paper, Dialog, DialogTitle, DialogContent, DialogActions, TextField, MenuItem } from '@mui/material';
-import EditIcon from '@mui/icons-material/Edit';
-
-const initialStaff = [
-  { id: 1, name: 'Nguyễn Văn A', position: 'Quản lý', email: 'a@gmail.com', phone: '0909123456', status: 'Đang làm việc' },
-  { id: 2, name: 'Trần Thị B', position: 'Nhân viên', email: 'b@gmail.com', phone: '0909234567', status: 'Đang làm việc' },
-  { id: 3, name: 'Lê Văn C', position: 'Nhân viên', email: 'c@gmail.com', phone: '0909345678', status: 'Đã nghỉ việc' }
-];
+import React, { useEffect, useState } from 'react';
+import { Card, CardContent, Typography, TextField, Button, Snackbar, Alert, CircularProgress } from '@mui/material';
+import { useParams, useNavigate } from 'react-router-dom';
 
 const UpdateStaff = () => {
-  const [staffs, setStaffs] = useState(initialStaff);
-  const [open, setOpen] = useState(false);
-  const [selected, setSelected] = useState(null);
+  const { id } = useParams();
+  const navigate = useNavigate();
   const [form, setForm] = useState({
-    name: '',
-    position: '',
-    email: '',
-    phone: '',
-    status: 'Đang làm việc'
+    firstName: '',
+    lastName: '',
+    email: ''
   });
+  const [loading, setLoading] = useState(true);
+  const [updating, setUpdating] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleOpen = (staff) => {
-    setSelected(staff);
-    setForm(staff);
-    setOpen(true);
-  };
-
-  const handleClose = () => {
-    setOpen(false);
-    setSelected(null);
-    setForm({
-      name: '',
-      position: '',
-      email: '',
-      phone: '',
-      status: 'Đang làm việc'
-    });
-  };
+  // Fetch staff info by id
+  useEffect(() => {
+    const fetchStaff = async () => {
+      setLoading(true);
+      setError('');
+      try {
+        const res = await fetch(`https://api.metroticketingsystem.site/api/user/Staffs/${id}`, {
+          headers: { 'Accept': 'application/json' }
+        });
+        const data = await res.json();
+        if (data.succeeded && data.data) {
+          // Tách họ tên nếu cần
+          const nameArr = (data.data.name || '').split(' ');
+          setForm({
+            firstName: nameArr[0] || '',
+            lastName: nameArr.slice(1).join(' ') || '',
+            email: data.data.email || ''
+          });
+        } else {
+          setError('Không tìm thấy nhân viên!');
+        }
+      } catch {
+        setError('Lỗi khi tải dữ liệu nhân viên!');
+      }
+      setLoading(false);
+    };
+    if (id) fetchStaff();
+  }, [id]);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleUpdate = (e) => {
+  const handleUpdate = async (e) => {
     e.preventDefault();
-    setStaffs(staffs.map((s) => (s.id === selected.id ? { ...form, id: selected.id } : s)));
-    handleClose();
+    setUpdating(true);
+    setError('');
+    try {
+      const res = await fetch(`https://api.metroticketingsystem.site/api/user/Staffs/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({
+          firstName: form.firstName,
+          lastName: form.lastName,
+          email: form.email
+        })
+      });
+      const data = await res.json();
+      if (res.ok && data.succeeded !== false) {
+        setSuccess(true);
+        setTimeout(() => navigate('/staff'), 1500);
+      } else {
+        setError(data.message || 'Cập nhật thất bại');
+      }
+    } catch {
+      setError('Cập nhật thất bại');
+    }
+    setUpdating(false);
   };
+
+  if (loading) {
+    return (
+      <Card>
+        <CardContent>
+          <Typography variant="h5">Cập nhật nhân viên</Typography>
+          <CircularProgress sx={{ mt: 3 }} />
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card>
@@ -54,99 +92,64 @@ const UpdateStaff = () => {
         <Typography variant="h4" gutterBottom>
           Cập nhật thông tin nhân viên
         </Typography>
-        <TableContainer component={Paper}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Họ và tên</TableCell>
-                <TableCell>Chức vụ</TableCell>
-                <TableCell>Email</TableCell>
-                <TableCell>Số điện thoại</TableCell>
-                <TableCell>Trạng thái</TableCell>
-                <TableCell>Hành động</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {staffs.map((staff) => (
-                <TableRow key={staff.id}>
-                  <TableCell>{staff.name}</TableCell>
-                  <TableCell>{staff.position}</TableCell>
-                  <TableCell>{staff.email}</TableCell>
-                  <TableCell>{staff.phone}</TableCell>
-                  <TableCell>{staff.status}</TableCell>
-                  <TableCell>
-                    <IconButton color="primary" onClick={() => handleOpen(staff)}>
-                      <EditIcon />
-                    </IconButton>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-
-        <Dialog open={open} onClose={handleClose}>
-          <DialogTitle>Cập nhật nhân viên</DialogTitle>
-          <form onSubmit={handleUpdate}>
-            <DialogContent>
-              <TextField
-                label="Họ và tên"
-                name="name"
-                value={form.name}
-                onChange={handleChange}
-                fullWidth
-                margin="normal"
-                required
-              />
-              <TextField
-                label="Chức vụ"
-                name="position"
-                value={form.position}
-                onChange={handleChange}
-                fullWidth
-                margin="normal"
-                required
-              />
-              <TextField
-                label="Email"
-                name="email"
-                type="email"
-                value={form.email}
-                onChange={handleChange}
-                fullWidth
-                margin="normal"
-                required
-              />
-              <TextField
-                label="Số điện thoại"
-                name="phone"
-                value={form.phone}
-                onChange={handleChange}
-                fullWidth
-                margin="normal"
-                required
-              />
-              <TextField
-                select
-                label="Trạng thái"
-                name="status"
-                value={form.status}
-                onChange={handleChange}
-                fullWidth
-                margin="normal"
-              >
-                <MenuItem value="Đang làm việc">Đang làm việc</MenuItem>
-                <MenuItem value="Đã nghỉ việc">Đã nghỉ việc</MenuItem>
-              </TextField>
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={handleClose}>Hủy</Button>
-              <Button type="submit" variant="contained">
-                Cập nhật
-              </Button>
-            </DialogActions>
-          </form>
-        </Dialog>
+        <form onSubmit={handleUpdate}>
+          <TextField
+            label="Họ"
+            name="firstName"
+            value={form.firstName}
+            onChange={handleChange}
+            fullWidth
+            margin="normal"
+            required
+            disabled={updating}
+          />
+          <TextField
+            label="Tên"
+            name="lastName"
+            value={form.lastName}
+            onChange={handleChange}
+            fullWidth
+            margin="normal"
+            required
+            disabled={updating}
+          />
+          <TextField
+            label="Email"
+            name="email"
+            type="email"
+            value={form.email}
+            onChange={handleChange}
+            fullWidth
+            margin="normal"
+            required
+            disabled={updating}
+          />
+          <Button
+            type="submit"
+            variant="contained"
+            color="primary"
+            fullWidth
+            sx={{ mt: 2 }}
+            disabled={updating}
+          >
+            {updating ? 'Đang cập nhật...' : 'Cập nhật'}
+          </Button>
+          <Button
+            variant="outlined"
+            fullWidth
+            sx={{ mt: 1 }}
+            onClick={() => navigate('/staff')}
+            disabled={updating}
+          >
+            Quay lại danh sách
+          </Button>
+        </form>
+        <Snackbar open={success} autoHideDuration={2000} onClose={() => setSuccess(false)}>
+          <Alert severity="success">Cập nhật thành công!</Alert>
+        </Snackbar>
+        <Snackbar open={!!error} autoHideDuration={3000} onClose={() => setError('')}>
+          <Alert severity="error">{error}</Alert>
+        </Snackbar>
       </CardContent>
     </Card>
   );

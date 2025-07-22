@@ -34,22 +34,22 @@ try {
 
 export default {
   items: [
-    {
-      id: 'navigation',
-      title: 'Metro HCM',
-      caption: 'Dashboard',
-      type: 'group',
-      icon: icons['NavigationOutlinedIcon'],
-      children: [
-        {
-          id: 'dashboard',
-          title: 'Dashboard',
-          type: 'item',
-          icon: icons['HomeOutlinedIcon'],
-          url: '/dashboard/default'
-        }
-      ]
-    },
+    // {
+    //   id: 'navigation',
+    //   title: 'Metro HCM',
+    //   caption: 'Dashboard',
+    //   type: 'group',
+    //   icon: icons['NavigationOutlinedIcon'],
+    //   children: [
+    //     {
+    //       id: 'dashboard',
+    //       title: 'Dashboard',
+    //       type: 'item',
+    //       icon: icons['HomeOutlinedIcon'],
+    //       url: '/dashboard/default'
+    //     }
+    //   ]
+    // },
     {
       id: 'pages',
       title: 'Pages',
@@ -109,7 +109,14 @@ export default {
   type: 'item',
   url: '/bus-routes',
   icon: icons['ChromeReaderModeOutlinedIcon']
-}
+},
+{
+      id: 'customers',
+      title: 'Customers',
+      type: 'item',
+      url: '/customers',
+      icon: icons['AccountTreeOutlinedIcon']
+    },
  ]
           : []),
 
