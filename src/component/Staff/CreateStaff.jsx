@@ -33,7 +33,6 @@ const CreateStaff = () => {
     setError('');
 
     try {
-      // ✅ Gọi API register với role cố định là Staff
       const response = await fetch(`https://api.metroticketingsystem.site/api/user/Auth/staff/register`, {
         method: 'POST',
         headers: {
@@ -48,34 +47,34 @@ const CreateStaff = () => {
         })
       });
 
-      console.log('Register response status:', response.status);
-      
+      // Xử lý lỗi trả về từ API (dạng JSON hoặc text)
       if (!response.ok) {
-        const errorText = await response.text();
-        console.log('Register error response:', errorText);
-        throw new Error(errorText || 'Không thể tạo tài khoản nhân viên');
+        let errorMsg = 'Không thể tạo tài khoản nhân viên';
+        try {
+          const errorData = await response.json();
+          if (errorData && errorData.message) errorMsg = errorData.message;
+        } catch {
+          const errorText = await response.text();
+          if (errorText) errorMsg = errorText;
+        }
+        throw new Error(errorMsg);
       }
 
       const data = await response.json();
-      console.log('Register success:', data);
-      
       setSuccess(true);
-      
-      // ✅ Reset form
+
       setForm({
         email: '',
         password: '',
         firstName: '',
         lastName: ''
       });
-      
-      // Redirect sau 2 giây
+
       setTimeout(() => {
         navigate('/staff');
       }, 2000);
-      
+
     } catch (err) {
-      console.error('Register error:', err);
       setError(err.message || 'Có lỗi xảy ra khi tạo tài khoản nhân viên');
     } finally {
       setLoading(false);
