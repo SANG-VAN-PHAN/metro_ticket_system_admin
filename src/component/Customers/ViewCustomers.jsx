@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import {
   Card, CardContent, Typography, Table, TableBody, TableCell, TableContainer,
-  TableHead, TableRow, Paper, Button, CircularProgress, Snackbar, Alert
+  TableHead, TableRow, Paper, CircularProgress, Snackbar, Alert, Button
 } from '@mui/material';
 
 const ViewCustomers = () => {
@@ -11,7 +11,7 @@ const ViewCustomers = () => {
   const [success, setSuccess] = useState('');
 
   // Lấy token từ localStorage
-  const token = localStorage.getItem('accessToken');
+  const token = localStorage.getItem('token');
 
   useEffect(() => {
     fetchCustomers();
@@ -22,7 +22,13 @@ const ViewCustomers = () => {
     setLoading(true);
     setError('');
     try {
-      const res = await fetch('https://api.metroticketingsystem.site/api/user/Customers', {
+      const params = new URLSearchParams({
+        page: '0',
+        pageSize: '8',
+        isActive: 'true'
+      });
+
+      const res = await fetch(`https://api.metroticketingsystem.site/api/user/Customers?${params.toString()}`, {
         headers: {
           'Accept': 'application/json',
           'Authorization': `Bearer ${token}`
@@ -42,31 +48,35 @@ const ViewCustomers = () => {
     setLoading(false);
   };
 
-  const handleBanUnban = async (customer) => {
-    const action = customer.isActive ? 'ban' : 'unban';
-    try {
-      const res = await fetch(`https://api.metroticketingsystem.site/api/user/Customers/${customer.id}/${action}`, {
-        method: 'PATCH',
-        headers: {
-          'Accept': 'application/json',
-          'Authorization': `Bearer ${token}`
-        }
-      });
-      const data = await res.json();
-      if (res.ok && data.succeeded) {
-        setCustomers(prev =>
-          prev.map(c =>
-            c.id === customer.id ? { ...c, isActive: !customer.isActive } : c
-          )
-        );
-        setSuccess(action === 'ban' ? 'Đã khóa tài khoản!' : 'Đã mở khóa tài khoản!');
-      } else {
-        setError(data.message || 'Thao tác thất bại');
+  // Chỉ cho phép Ban (khóa), không có chức năng Unban
+const handleBan = async (customer) => {
+  if (!customer.isActive) return; // Đã khóa thì không làm gì
+  try {
+    const res = await fetch(`https://api.metroticketingsystem.site/api/user/Customers/${customer.id}`, {
+      method: 'DELETE',
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${token}`
       }
-    } catch {
-      setError('Thao tác thất bại');
+    });
+
+    if (res.status === 204) {
+      setSuccess('Đã khóa tài khoản!');
+      fetchCustomers(); // Cập nhật lại danh sách
+      return;
     }
-  };
+
+    const data = await res.json();
+    if (res.ok && data.succeeded) {
+      setSuccess('Đã khóa tài khoản!');
+      fetchCustomers(); // Cập nhật lại danh sách
+    } else {
+      setError(data.message || 'Thao tác thất bại');
+    }
+  } catch {
+    setError('Thao tác thất bại');
+  }
+};
 
   return (
     <Card>
@@ -107,11 +117,12 @@ const ViewCustomers = () => {
                       <TableCell>
                         <Button
                           variant="outlined"
-                          color={customer.isActive ? "error" : "success"}
+                          color="error"
                           size="small"
-                          onClick={() => handleBanUnban(customer)}
+                          disabled={!customer.isActive}
+                          onClick={() => handleBan(customer)}
                         >
-                          {customer.isActive ? "Ban" : "Unban"}
+                          Ban
                         </Button>
                       </TableCell>
                     </TableRow>
