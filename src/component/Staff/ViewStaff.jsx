@@ -147,22 +147,26 @@ const ViewStaff = () => {
             size="small"
             color="error"
             onClick={() => {
-              if (window.confirm('Bạn có chắc chắn muốn xóa nhân viên này?')) {
-                fetch(`https://api.metroticketingsystem.site/api/user/Staffs/${staff.id}`, {
-                  method: 'DELETE',
-                  headers: { 'Accept': 'application/json' }
-                })
-                  .then(res => res.json())
-                  .then(data => {
-                    if (data.succeeded) {
-                      setStaffs(prev => prev.filter(s => s.id !== staff.id));
-                    } else {
-                      setError(data.message || 'Xóa thất bại');
-                    }
-                  })
-                  .catch(() => setError('Xóa thất bại'));
-              }
-            }}
+  if (window.confirm('Bạn có chắc chắn muốn xóa nhân viên này?')) {
+    fetch(`https://api.metroticketingsystem.site/api/user/Staffs/${staff.id}`, {
+      method: 'DELETE',
+      headers: { 'Accept': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+    })
+      .then(async res => {
+        if (res.status === 204) {
+          fetchStaffs(); // Lấy lại danh sách mới nhất
+          return;
+        }
+        const data = await res.json();
+        if (data.succeeded) {
+          fetchStaffs();
+        } else {
+          setError(data.message || 'Xóa thất bại');
+        }
+      })
+      .catch(() => setError('Xóa thất bại'));
+  }
+}}
           >
             Xóa
           </Button>

@@ -22,7 +22,7 @@ const UpdateStaff = () => {
       setError('');
       try {
         const res = await fetch(`https://api.metroticketingsystem.site/api/user/Staffs/${id}`, {
-          headers: { 'Accept': 'application/json' }
+          headers: { 'Accept': 'application/json'}
         });
         const data = await res.json();
         if (data.succeeded && data.data) {
@@ -49,31 +49,44 @@ const UpdateStaff = () => {
   };
 
   const handleUpdate = async (e) => {
-    e.preventDefault();
-    setUpdating(true);
-    setError('');
-    try {
-      const res = await fetch(`https://api.metroticketingsystem.site/api/user/Staffs/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-        body: JSON.stringify({
-          firstName: form.firstName,
-          lastName: form.lastName,
-          email: form.email
-        })
-      });
-      const data = await res.json();
-      if (res.ok && data.succeeded !== false) {
-        setSuccess(true);
-        setTimeout(() => navigate('/staff'), 1500);
-      } else {
-        setError(data.message || 'Cập nhật thất bại');
-      }
-    } catch {
-      setError('Cập nhật thất bại');
+  e.preventDefault();
+  setUpdating(true);
+  setError('');
+  try {
+    const token = localStorage.getItem('token');
+    const res = await fetch(`https://api.metroticketingsystem.site/api/user/Staffs/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        firstName: form.firstName,
+        lastName: form.lastName,
+        email: form.email
+      })
+    });
+
+    if (res.status === 204) {
+      setSuccess(true);
+      setTimeout(() => navigate('/staff'), 1500);
+      setUpdating(false);
+      return;
     }
-    setUpdating(false);
-  };
+
+    const data = await res.json();
+    if (res.ok && data.succeeded !== false) {
+      setSuccess(true);
+      setTimeout(() => navigate('/staff'), 1500);
+    } else {
+      setError((data && data.message) || 'Cập nhật thất bại');
+    }
+  } catch (err) {
+    setError('Cập nhật thất bại');
+  }
+  setUpdating(false);
+};
 
   if (loading) {
     return (
