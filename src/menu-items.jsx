@@ -117,6 +117,13 @@ export default {
       url: '/customers',
       icon: icons['AccountTreeOutlinedIcon']
     },
+    {
+      id: 'feedback-types',
+      title: 'Feedback Types',
+      type: 'item',
+      url: '/feedback-types',
+      icon: icons['ContactSupportOutlinedIcon']
+    },
  ]
           : []),
 
