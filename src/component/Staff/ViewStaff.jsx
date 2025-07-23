@@ -142,34 +142,63 @@ const ViewStaff = () => {
           </Button>
         </TableCell>
         <TableCell>
-          <Button
-            variant="outlined"
-            size="small"
-            color="error"
-            onClick={() => {
-  if (window.confirm('Bạn có chắc chắn muốn xóa nhân viên này?')) {
-    fetch(`https://api.metroticketingsystem.site/api/user/Staffs/${staff.id}`, {
-      method: 'DELETE',
-      headers: { 'Accept': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-    })
-      .then(async res => {
-        if (res.status === 204) {
-          fetchStaffs(); // Lấy lại danh sách mới nhất
-          return;
-        }
-        const data = await res.json();
-        if (data.succeeded) {
-          fetchStaffs();
-        } else {
-          setError(data.message || 'Xóa thất bại');
-        }
-      })
-      .catch(() => setError('Xóa thất bại'));
-  }
-}}
-          >
-            Xóa
-          </Button>
+          {staff.isActive ? (
+            <Button
+              variant="outlined"
+              size="small"
+              color="error"
+              onClick={() => {
+                if (window.confirm('Bạn có chắc chắn muốn xóa nhân viên này?')) {
+                  fetch(`https://api.metroticketingsystem.site/api/user/Staffs/deactivate/${staff.id}`, {
+                    method: 'DELETE',
+                    headers: { 'Accept': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+                  })
+                    .then(async res => {
+                      if (res.status === 204) {
+                        fetchStaffs();
+                        return;
+                      }
+                      const data = await res.json();
+                      if (data.succeeded) {
+                        fetchStaffs();
+                      } else {
+                        setError(data.message || 'Khoá tài khoản thất bại');
+                      }
+                    })
+                    .catch(() => setError('Khoá tài khoản thất bại'));
+                }
+              }}
+            >
+              Khoá tài khoản
+            </Button>
+          ) : (
+            <Button
+              variant="outlined"
+              size="small"
+              color="success"
+              onClick={() => {
+                if (window.confirm('Bạn có chắc chắn muốn kích hoạt lại nhân viên này?')) {
+                  fetch(`https://api.metroticketingsystem.site/api/user/Staffs/activate/${staff.id}`, {
+                    method: 'PUT',
+                    headers: { 'Accept': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+                  })
+                    .then(async res => {
+                      if (res.status === 204) {
+                        fetchStaffs();
+                        return;
+                      }
+                      // fallback: try to parse error message if not 204
+                      let data = {};
+                      try { data = await res.json(); } catch {}
+                      setError(data.message || 'Kích hoạt thất bại');
+                    })
+                    .catch(() => setError('Kích hoạt thất bại'));
+                }
+              }}
+            >
+              Kích hoạt
+            </Button>
+          )}
         </TableCell> 
       </TableRow>
     ))

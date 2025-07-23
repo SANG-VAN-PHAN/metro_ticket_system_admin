@@ -33,6 +33,7 @@ const CreateStaff = () => {
     setError('');
 
     try {
+      const token = localStorage.getItem('token');
       const response = await fetch(`https://api.metroticketingsystem.site/api/user/Auth/staff/register`, {
         method: 'POST',
         headers: {

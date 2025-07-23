@@ -120,8 +120,8 @@ import { jwtDecode } from 'jwt-decode';
 // project import
 import MainLayout from 'layout/MainLayout';
 import Loadable from 'component/Loadable';
+import IntroPage from 'component/IntroPage';
 
-const DashboardDefault = Loadable(lazy(() => import('views/Dashboard/Default')));
 const UtilsTypography = Loadable(lazy(() => import('views/Utils/Typography')));
 const SamplePage = Loadable(lazy(() => import('views/SamplePage')));
 const ViewBusRoutes = Loadable(lazy(() => import('component/BusRoutes/ViewBusRoutes')));
@@ -219,8 +219,7 @@ const MainRoutes = {
   element: <MainLayout />,
   children: [
     // Public routes (accessible without login)
-    { path: '/', element: <ProtectedRoute><DashboardDefault /></ProtectedRoute> },
-    { path: '/dashboard/default', element: <ProtectedRoute><DashboardDefault /></ProtectedRoute> },
+    { path: '/', element: <ProtectedRoute><IntroPage /></ProtectedRoute> },
 
     // Routes accessible by all authenticated users
     { path: '/utils/util-typography', element: <ProtectedRoute><UtilsTypography /></ProtectedRoute> },

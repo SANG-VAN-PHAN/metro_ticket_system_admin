@@ -5,8 +5,6 @@ import { useTheme } from '@mui/material/styles';
 import { useMediaQuery, AppBar, ClickAwayListener, IconButton, Grow, Paper, Popper, Toolbar, Grid, Box } from '@mui/material';
 
 // project import
-import SearchSection from '../SearchSection';
-import NotificationSection from '../NotificationSection';
 import ProfileSection from '../ProfileSection';
 
 // assets
@@ -90,8 +88,6 @@ const MobileSection = () => {
                   <AppBar color="default">
                     <Toolbar>
                       <Grid container direction="row" justifyContent={matchMobile ? 'space-between' : 'flex-end'} alignItems="center">
-                        <SearchSection theme="dark" />
-                        <NotificationSection />
                         <ProfileSection />
                       </Grid>
                     </Toolbar>
