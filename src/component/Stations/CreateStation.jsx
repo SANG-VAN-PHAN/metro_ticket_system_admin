@@ -453,7 +453,7 @@ const CreateStation = () => {
         </Button>
         <form onSubmit={handleSubmit}>
           <TextField
-            label="Tên ga *"
+            label="Tên ga"
             name="name"
             value={form.name}
             onChange={handleChange}

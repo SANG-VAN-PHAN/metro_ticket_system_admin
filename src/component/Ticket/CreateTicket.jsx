@@ -33,7 +33,7 @@ const CreateTicket = () => {
         },
         body: JSON.stringify({
           name: form.name,
-          price: parseFloat(form.price),
+          price: parseInt(form.ticketType) === 1 ? 0 : parseFloat(form.price),
           activeInDay: parseInt(form.activeInDay),
           expirationInDay: parseInt(form.expirationInDay),
           ticketType: parseInt(form.ticketType)
@@ -98,20 +98,21 @@ const CreateTicket = () => {
           />
           
           <TextField
-            label="Giá vé (VNĐ)"
+            label={parseInt(form.ticketType) === 1 ? 'Giá vé lượt sẽ được tính theo khoảng cách giữa 2 ga' : 'Giá vé (VNĐ)'}
             name="price"
             type="number"
             value={form.price}
             onChange={handleChange}
             fullWidth
             margin="normal"
-            required
+            required={parseInt(form.ticketType) !== 1}
+            disabled={parseInt(form.ticketType) === 1}
             inputProps={{ min: 0, step: 0.01 }}
-            placeholder="Ví dụ: 20000"
+            placeholder={parseInt(form.ticketType) === 1 ? 'Giá vé sẽ thay đổi dựa trên khoảng cách' : 'Ví dụ: 20000'}
           />
           
           <TextField
-            label="Thời gian hiệu lực (ngày)"
+            label="Tự động kích hoạt trong (ngày)"
             name="activeInDay"
             type="number"
             value={form.activeInDay}
@@ -124,7 +125,7 @@ const CreateTicket = () => {
           />
           
           <TextField
-            label="Thời hạn sử dụng (ngày)"
+            label="Hết hạn trong (ngày)"
             name="expirationInDay"
             type="number"
             value={form.expirationInDay}

@@ -269,8 +269,7 @@ const UpdateRoute = () => {
   const [form, setForm] = useState({
     code: '',
     name: '',
-    thumbnailImageUrl: '',
-    lengthInKm: ''
+    thumbnailImageUrl: ''
   });
 
   // Fetch route data by ID
@@ -303,8 +302,7 @@ const UpdateRoute = () => {
           setForm({
             code: routeData.code || '',
             name: routeData.name || '',
-            thumbnailImageUrl: routeData.thumbnailImageUrl || '',
-            lengthInKm: routeData.lengthInKm || ''
+            thumbnailImageUrl: routeData.thumbnailImageUrl || ''
           });
           setImagePreview(routeData.thumbnailImageUrl === 'empty' ? '' : (routeData.thumbnailImageUrl || ''));
         } else {
@@ -346,8 +344,7 @@ const UpdateRoute = () => {
       formData.append('id', route.id);
       formData.append('code', form.code);
       formData.append('name', form.name);
-      formData.append('lengthInKm', form.lengthInKm);
-      
+      // formData.append('lengthInKm', form.lengthInKm); // Removed
       if (imageFile) {
         formData.append('ThumbnailImage', imageFile);
       } else {
@@ -447,7 +444,6 @@ const UpdateRoute = () => {
             margin="normal"
             required
           />
-          
           {/* Upload ảnh */}
           <Box sx={{ mt: 2 }}>
             <Button
@@ -475,19 +471,7 @@ const UpdateRoute = () => {
               </Box>
             )}
           </Box>
-
-          <TextField
-            label="Chiều dài (km)"
-            name="lengthInKm"
-            type="number"
-            value={form.lengthInKm}
-            onChange={handleChange}
-            fullWidth
-            margin="normal"
-            required
-            inputProps={{ min: 0, step: 0.01 }}
-          />
-          
+          {/* Removed Chiều dài (km) field */}
           <Button 
             type="submit" 
             variant="contained" 

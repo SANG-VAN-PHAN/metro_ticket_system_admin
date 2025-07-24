@@ -19,7 +19,7 @@ const ViewStaff = () => {
   useEffect(() => {
     fetchStaffs();
     // eslint-disable-next-line
-  }, [page, email, isActive]);
+  }, [page, isActive]);
 
   const fetchStaffs = async () => {
     setLoading(true);
@@ -51,11 +51,6 @@ const ViewStaff = () => {
     setLoading(false);
   };
 
-  const handleSearch = (e) => {
-    setEmail(e.target.value);
-    setPage(0);
-  };
-
   const handlePrevPage = () => setPage(prev => Math.max(0, prev - 1));
   const handleNextPage = () => setPage(prev => prev + 1);
 
@@ -69,9 +64,15 @@ const ViewStaff = () => {
           <TextField
             label="Tìm theo email"
             value={email}
-            onChange={handleSearch}
+            onChange={e => setEmail(e.target.value)}
             size="small"
           />
+          <Button
+            variant="contained"
+            onClick={() => { setPage(0); fetchStaffs(); }}
+          >
+            Tìm kiếm
+          </Button>
           <Button
             variant={isActive ? "contained" : "outlined"}
             onClick={() => { setIsActive(true); setPage(0); }}

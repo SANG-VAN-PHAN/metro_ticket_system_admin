@@ -57,36 +57,41 @@ export default {
       type: 'group',
       icon: icons['NavigationOutlinedIcon'],
       children: [
-
-        // Menu cho Administrator - hiện tất cả trừ Student Request
         ...(role === 'Administrator'
           ? [
         {
           id: 'metro-routes',
-          title: 'Routes',
+          title: 'QUẢN LÝ TUYẾN',
           type: 'item',
           url: '/metro-routes',
           icon: icons['ChromeReaderModeOutlinedIcon']
         },
         {
           id: 'staff',
-          title: 'Staff',
+          title: 'QUẢN LÝ NHÂN VIÊN',
           type: 'item',
           url: '/staff',
           icon: icons['AccountTreeOutlinedIcon']
         },
         {
     id: 'stations',
-    title: 'Stations',
+    title: 'QUẢN LÝ GA',
     type: 'item',
     url: '/stations',
     icon: icons['AppsOutlinedIcon']
   },
    {
     id: 'ticket',
-    title: 'Ticket',
+    title: 'QUẢN LÝ CÁC LOẠI VÉ',
     type: 'item',
     url: '/ticket',
+    icon: icons['ChromeReaderModeOutlinedIcon']
+  },
+  {
+    id: 'price-ranges',
+    title: 'QUẢN LÝ GIÁ VÉ',
+    type: 'item',
+    url: '/price-ranges',
     icon: icons['ChromeReaderModeOutlinedIcon']
   },
 //   {
@@ -105,23 +110,30 @@ export default {
 // },
 {
   id: 'bus-routes',
-  title: 'Bus Routes',
+  title: 'QUẢN LÝ TUYẾN XE BUÝT',
   type: 'item',
   url: '/bus-routes',
   icon: icons['ChromeReaderModeOutlinedIcon']
 },
 {
       id: 'customers',
-      title: 'Customers',
+      title: 'QUẢN LÝ KHÁCH HÀNG',
       type: 'item',
       url: '/customers',
       icon: icons['AccountTreeOutlinedIcon']
     },
     {
       id: 'feedback-types',
-      title: 'Feedback Types',
+      title: 'QUẢN LÝ LOẠI ĐÁNH GIÁ',
       type: 'item',
       url: '/feedback-types',
+      icon: icons['ContactSupportOutlinedIcon']
+    },
+    {
+      id: 'admin-feedbacks',
+      title: 'QUẢN LÝ ĐÁNH GIÁ',
+      type: 'item',
+      url: '/admin-feedbacks',
       icon: icons['ContactSupportOutlinedIcon']
     },
  ]
@@ -132,7 +144,7 @@ export default {
           ? [
               {
                 id: 'student-request',
-                title: 'Student Request',
+                title: 'XÁC NHẬN HỌC SINH SINH VIÊN',
                 type: 'item',
                 url: '/student-request',
                 icon: icons['ChromeReaderModeOutlinedIcon'],
@@ -165,54 +177,5 @@ export default {
       : [])
   ]
 },
-    {
-      id: 'utils',
-      title: 'Utils',
-      type: 'group',
-      icon: icons['AccountTreeOutlinedIcon'],
-      children: [
-        // {
-        //   id: 'util-icons',
-        //   title: 'Icons',
-        //   type: 'item',
-        //   url: 'https://mui.com/material-ui/material-icons/',
-        //   icon: icons['AppsOutlinedIcon'],
-        //   external: true,
-        //   target: true
-        // },
-        // {
-        //   id: 'util-typography',
-        //   title: 'Typography',
-        //   type: 'item',
-        //   url: '/utils/util-typography',
-        //   icon: icons['FormatColorTextOutlinedIcon']
-        // }
-      ]
-    },
-    {
-      id: 'support',
-      title: 'Support',
-      type: 'group',
-      icon: icons['ContactSupportOutlinedIcon'],
-      children: [
-        // {
-        //   id: 'disabled-menu',
-        //   title: 'Disabled Menu',
-        //   type: 'item',
-        //   url: '#',
-        //   icon: icons['BlockOutlinedIcon'],
-        //   disabled: true
-        // },
-        // {
-        //   id: 'documentation',
-        //   title: 'Documentation',
-        //   type: 'item',
-        //   url: 'https://codedthemes.gitbook.io/materially-react-material-documentation/',
-        //   icon: icons['HelpOutlineOutlinedIcon'],
-        //   external: true,
-        //   target: true
-        // }
-      ]
-    }
   ]
 };

@@ -230,7 +230,7 @@ const CreateRoute = () => {
         </Button>
         <form onSubmit={handleSubmit}>
           <TextField
-            label="Tên tuyến *"
+            label="Tên tuyến"
             name="name"
             value={form.name}
             onChange={handleChange}

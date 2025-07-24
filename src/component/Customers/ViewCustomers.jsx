@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import {
   Card, CardContent, Typography, Table, TableBody, TableCell, TableContainer,
-  TableHead, TableRow, Paper, CircularProgress, Snackbar, Alert, Button, Stack
+  TableHead, TableRow, Paper, CircularProgress, Snackbar, Alert, Button, Stack, TextField
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
@@ -23,7 +23,7 @@ const ViewCustomers = () => {
   useEffect(() => {
     fetchCustomers();
     // eslint-disable-next-line
-  }, [page, email, isActive]);
+  }, [page, isActive]);
 
   const fetchCustomers = async () => {
     setLoading(true);
@@ -53,11 +53,6 @@ const ViewCustomers = () => {
       setCustomers([]);
     }
     setLoading(false);
-  };
-
-  const handleSearch = (e) => {
-    setEmail(e.target.value);
-    setPage(0);
   };
 
   // Chỉ cho phép Ban (khóa), không có chức năng Unban
@@ -121,24 +116,30 @@ const ViewCustomers = () => {
           Danh sách khách hàng
         </Typography>
         <Stack direction="row" spacing={2} sx={{ mb: 2 }}>
-          <input
-            type="text"
-            placeholder="Tìm theo email"
+          <TextField
+            label="Tìm theo email"
             value={email}
-            onChange={handleSearch}
-            style={{ padding: 8, borderRadius: 4, border: '1px solid #ccc', minWidth: 200 }}
+            onChange={e => setEmail(e.target.value)}
+            size="small"
+            sx={{ minWidth: 200 }}
           />
           <Button
+            variant="contained"
+            onClick={() => { setPage(0); fetchCustomers(); }}
+          >
+            Tìm kiếm
+          </Button>
+          <Button
             variant={isActive ? "contained" : "outlined"}
-            onClick={() => { setIsActive(true); setPage(0); }}
+            onClick={() => { setIsActive(true); setPage(0); fetchCustomers(); }}
           >
             Đang hoạt động
           </Button>
           <Button
             variant={!isActive ? "contained" : "outlined"}
-            onClick={() => { setIsActive(false); setPage(0); }}
+            onClick={() => { setIsActive(false); setPage(0); fetchCustomers(); }}
           >
-            Đã khóa
+            Đã khoá
           </Button>
         </Stack>
         {loading ? (

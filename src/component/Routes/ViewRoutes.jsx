@@ -343,6 +343,7 @@ const ViewRoutes = () => {
     const [routeOptions, setRouteOptions] = useState([]);
     const [routeLoading, setRouteLoading] = useState(false);
     const [searchInput, setSearchInput] = useState('');
+    const [debouncedSearch, setDebouncedSearch] = useState('');
     const [selectedRoute, setSelectedRoute] = useState(null);
 
     // DELETE DIALOG STATE
@@ -354,28 +355,33 @@ const ViewRoutes = () => {
 
     useEffect(() => {
         fetchRoutes();
-    }, [page, searchInput, selectedRoute]);
+        // eslint-disable-next-line
+    }, [page, debouncedSearch]);
+
+    // Debounce search input
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            setDebouncedSearch(searchInput);
+        }, 400);
+        return () => clearTimeout(handler);
+    }, [searchInput]);
 
     const fetchRoutes = () => {
         setLoading(true);
-        
         // Tạo query parameters
         const params = new URLSearchParams({
             page: page.toString(),
             pageSize: pageSize.toString()
         });
-
         // Thêm search parameter nếu có
-        if (searchInput.trim()) {
-            params.append('name', searchInput.trim());
+        if (debouncedSearch.trim()) {
+            params.append('name', debouncedSearch.trim());
         }
-
         fetch(`https://api.metroticketingsystem.site/api/catalog/Routes?${params.toString()}`, {
             headers: { 'Accept': 'application/json' }
         })
             .then(res => res.json())
             .then(data => {
-                console.log('Routes API response:', data);
                 if (data.succeeded && data.data) {
                     setRoutes(data.data.routes || []);
                     setTotalPages(data.data.totalPages || 0);
@@ -385,74 +391,20 @@ const ViewRoutes = () => {
                 }
                 setLoading(false);
             })
-            .catch(err => {
-                console.error('Fetch routes error:', err);
+            .catch(() => {
                 setRoutes([]);
                 setTotalPages(0);
                 setLoading(false);
             });
     };
 
-    // SEARCH HANDLERS
-    const handleRouteSearch = async (e, value) => {
-        setSearchInput(value || '');
-        setPage(0); // Reset về trang đầu khi search
-        
-        if (!value || value.length < 2) {
-            setRouteOptions([]);
-            return;
-        }
-        
-        setRouteLoading(true);
-        
-        // Tìm kiếm qua API
-        const params = new URLSearchParams({
-            page: '0',
-            pageSize: '10', // Lấy 10 kết quả cho autocomplete
-            name: value
-        });
-
-        try {
-            const response = await fetch(`https://api.metroticketingsystem.site/api/catalog/Routes?${params.toString()}`, {
-                headers: { 'Accept': 'application/json' }
-            });
-            const data = await response.json();
-            
-            if (data.succeeded && data.data) {
-                setRouteOptions(data.data.routes || []);
-            } else {
-                setRouteOptions([]);
-            }
-        } catch (err) {
-            console.error('Search error:', err);
-            setRouteOptions([]);
-        } finally {
-            setRouteLoading(false);
-        }
+    // SEARCH HANDLER
+    const handleSearchInputChange = (e) => {
+        setSearchInput(e.target.value);
+        setPage(0);
     };
-
-    const handleRouteSelect = (e, value) => {
-        setSelectedRoute(value);
-        setPage(0); // Reset về trang đầu
-        
-        if (value && value.name) {
-            setSearchInput(value.name);
-        } else {
-            setSearchInput('');
-        }
-    };
-
-    const handleKeyDown = (e) => {
-        if (e.key === 'Enter') {
-            setPage(0); // Reset về trang đầu
-            fetchRoutes();
-        }
-    };
-
     const handleClearSearch = () => {
         setSearchInput('');
-        setSelectedRoute(null);
-        setRouteOptions([]);
         setPage(0);
     };
 
@@ -517,88 +469,49 @@ const ViewRoutes = () => {
         setRouteToDelete(null);
     };
 
-    if (loading) {
-        return (
-            <Card>
-                <CardContent>
-                    <Typography variant="h4" gutterBottom>
-                        Danh sách các tuyến Metro
-                    </Typography>
-                    <div style={{ textAlign: 'center', padding: '50px' }}>
-                        <CircularProgress />
-                        <Typography sx={{ mt: 2 }}>Đang tải...</Typography>
-                    </div>
-                </CardContent>
-            </Card>
-        );
-    }
-
     return (
         <Card>
             {/* SEARCH */}
-            <CardContent sx={{ pb: 0 }}>
-                <Autocomplete
-                    freeSolo
-                    options={Array.isArray(routeOptions) ? routeOptions : []}
-                    getOptionLabel={opt => typeof opt === 'string' ? opt : `${opt.name}${opt.code ? ' (' + opt.code + ')' : ''}`}
-                    isOptionEqualToValue={(opt, val) => typeof val !== 'string' && opt.id === val.id}
-                    loading={routeLoading}
-                    inputValue={searchInput}
-                    onInputChange={handleRouteSearch}
-                    onChange={handleRouteSelect}
-                    renderInput={params => (
-                        <TextField
-                            {...params}
-                            label="Tìm kiếm tuyến Metro (Enter để tìm)"
-                            placeholder="Tên tuyến... (ít nhất 2 ký tự)"
-                            onKeyDown={handleKeyDown}
-                            InputProps={{
-                                ...params.InputProps,
-                                endAdornment: (
-                                    <>
-                                        {routeLoading && <CircularProgress size={20} color="inherit" />}
-                                        {params.InputProps.endAdornment}
-                                    </>
-                                )
-                            }}
-                        />
-                    )}
-                />
-            </CardContent>
-
             <CardContent>
-                <Typography variant="h4" gutterBottom>
-                    Danh sách các tuyến Metro
+                <Typography variant="h4" sx={{ mb: 2, fontWeight: 700 }}>
+                    Quản lý tuyến Metro
                 </Typography>
                 <Stack direction="row" spacing={2} sx={{ mb: 2 }}>
                     <Button component={Link} to="/metro-routes/create" variant="contained" color="primary">
                         Thêm tuyến mới
                     </Button>
-                    {(searchInput || selectedRoute) && (
-                        <Button onClick={handleClearSearch} variant="outlined">
-                            Xóa bộ lọc
-                        </Button>
-                    )}
                 </Stack>
-
+                <TextField
+                    label="Tìm kiếm tuyến Metro theo tên"
+                    placeholder="Nhập tên tuyến..."
+                    value={searchInput}
+                    onChange={handleSearchInputChange}
+                    fullWidth
+                    size="small"
+                    sx={{ mb: 2, maxWidth: 400 }}
+                />
                 <TableContainer component={Paper}>
                     <Table>
                         <TableHead>
                             <TableRow>
-                                <TableCell>Mã tuyến</TableCell>
-                                <TableCell>Tên tuyến</TableCell>
-                                <TableCell>Ảnh đại diện</TableCell>
-                                <TableCell>Chiều dài (km)</TableCell>
-                                <TableCell>Thao tác</TableCell>
+                                <TableCell sx={{ fontWeight: 700 }}>Mã tuyến</TableCell>
+                                <TableCell sx={{ fontWeight: 700 }}>Tên tuyến</TableCell>
+                                <TableCell sx={{ fontWeight: 700 }}>Ảnh đại diện</TableCell>
+                                <TableCell sx={{ fontWeight: 700 }}>Chiều dài (km)</TableCell>
+                                <TableCell sx={{ fontWeight: 700 }} align="center">Thao tác</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {routes.length === 0 ? (
+                            {loading ? (
                                 <TableRow>
                                     <TableCell colSpan={5} align="center">
-                                        {searchInput || selectedRoute
-                                            ? 'Không tìm thấy tuyến phù hợp'
-                                            : 'Không có dữ liệu'}
+                                        <CircularProgress size={28} sx={{ my: 2 }} />
+                                    </TableCell>
+                                </TableRow>
+                            ) : routes.length === 0 ? (
+                                <TableRow>
+                                    <TableCell colSpan={5} align="center">
+                                        {searchInput ? 'Không tìm thấy tuyến phù hợp' : 'Không có dữ liệu'}
                                     </TableCell>
                                 </TableRow>
                             ) : (
@@ -608,12 +521,12 @@ const ViewRoutes = () => {
                                         <TableCell>{route.name}</TableCell>
                                         <TableCell>
                                             {route.thumbnailImageUrl && route.thumbnailImageUrl !== 'empty'
-                                                ? <Avatar src={route.thumbnailImageUrl} alt={route.name} />
-                                                : <Avatar>{route.name?.[0] || '?'}</Avatar>}
+                                                ? <Avatar src={route.thumbnailImageUrl} alt={route.name} variant="rounded" sx={{ width: 56, height: 40, borderRadius: 2 }} />
+                                                : <Avatar variant="rounded" sx={{ width: 56, height: 40, borderRadius: 2 }}>{route.name?.[0] || '?'}</Avatar>}
                                         </TableCell>
-                                        <TableCell>{route.lengthInKm || 0}</TableCell>
-                                        <TableCell>
-                                            <Stack direction="row" spacing={1}>
+                                        <TableCell>{route.lengthInKm !== undefined && route.lengthInKm !== null ? Number(route.lengthInKm).toFixed(2) : '0.00'}</TableCell>
+                                        <TableCell align="center">
+                                            <Stack direction="row" spacing={1} justifyContent="center">
                                                 <Button
                                                     component={Link}
                                                     to={`/metro-routes/${route.id}`}
@@ -650,26 +563,13 @@ const ViewRoutes = () => {
                 {/* PAGINATION - Chỉ hiển thị khi có nhiều hơn 1 trang */}
                 {totalPages > 1 && (
                     <Stack direction="row" justifyContent="center" alignItems="center" spacing={2} sx={{ mt: 2 }}>
-                        <Button 
-                            size="small" 
-                            disabled={page === 0} 
-                            onClick={handlePrevPage}
-                            variant="outlined"
-                        >
+                        <Button size="small" disabled={page === 0} onClick={handlePrevPage} variant="outlined">
                             Trước
                         </Button>
-                        <Typography>
+                        <Typography sx={{ alignSelf: 'center' }}>
                             Trang {page + 1} / {totalPages}
                         </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                            (Hiển thị {routes.length} / {totalPages * pageSize} tuyến)
-                        </Typography>
-                        <Button 
-                            size="small" 
-                            disabled={page >= totalPages - 1} 
-                            onClick={handleNextPage}
-                            variant="outlined"
-                        >
+                        <Button size="small" disabled={page + 1 >= totalPages} onClick={handleNextPage} variant="outlined">
                             Sau
                         </Button>
                     </Stack>

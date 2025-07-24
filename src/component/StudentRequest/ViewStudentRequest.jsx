@@ -19,14 +19,23 @@ const ViewStudentRequest = () => {
   const [error, setError] = useState('');
   const [deletingId, setDeletingId] = useState(null);
   const [approvingId, setApprovingId] = useState(null);
+  // State cho bộ lọc
+  const [searchEmail, setSearchEmail] = useState('');
+  const [pendingSearchEmail, setPendingSearchEmail] = useState('');
+  const [status, setStatus] = useState('');
+  const [pendingStatus, setPendingStatus] = useState('');
 
   const navigate = useNavigate();
 
-  const fetchRequests = async (pageNumber = 1) => {
+  const fetchRequests = async (pageNumber = 1, email = searchEmail, stat = status) => {
     setLoading(true);
     setError('');
     try {
-      const res = await fetch(`https://api.metroticketingsystem.site/api/user/StudentRequest?page=${pageNumber - 1}`);
+      const params = new URLSearchParams();
+      params.append('page', pageNumber - 1);
+      if (email) params.append('searchEmail', email);
+      if (stat) params.append('status', stat);
+      const res = await fetch(`https://api.metroticketingsystem.site/api/user/StudentRequest?${params.toString()}`);
       if (!res.ok) throw new Error('Không thể lấy danh sách yêu cầu!');
       const data = await res.json();
       setStudents(data.data.students || []);
@@ -40,10 +49,17 @@ const ViewStudentRequest = () => {
   useEffect(() => {
     fetchRequests(page);
     // eslint-disable-next-line
-  }, [page]);
+  }, [page, searchEmail, status]);
 
   const handlePageChange = (event, value) => {
     setPage(value);
+  };
+
+  // Xử lý bộ lọc
+  const handleApplyFilter = () => {
+    setSearchEmail(pendingSearchEmail);
+    setStatus(pendingStatus);
+    setPage(1);
   };
 
   const handleDelete = async (id) => {
@@ -102,7 +118,7 @@ const ViewStudentRequest = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   return (
-    <Box maxWidth={1100} mx="auto" mt={5} px={isMobile ? 1 : 0}>
+    <Box maxWidth={1400} mx="auto" mt={5} px={isMobile ? 1 : 0}>
       <Card elevation={3} sx={{ borderRadius: 3 }}>
         <CardContent>
           <Stack direction={isMobile ? 'column' : 'row'} justifyContent="space-between" alignItems={isMobile ? 'flex-start' : 'center'} mb={2} gap={2}>
@@ -110,18 +126,47 @@ const ViewStudentRequest = () => {
               Danh sách yêu cầu xác thực sinh viên
             </Typography>
           </Stack>
+          {/* Bộ lọc */}
+          <Stack direction={isMobile ? 'column' : 'row'} spacing={2} alignItems={isMobile ? 'stretch' : 'center'} mb={2}>
+            <Box minWidth={220}>
+              <Typography variant="subtitle2" mb={0.5}>Tìm theo email</Typography>
+              <input
+                type="text"
+                value={pendingSearchEmail}
+                onChange={e => setPendingSearchEmail(e.target.value)}
+                placeholder="Nhập email sinh viên"
+                style={{ width: '100%', padding: 8, borderRadius: 4, border: '1px solid #ccc' }}
+              />
+            </Box>
+            <Box minWidth={160}>
+              <Typography variant="subtitle2" mb={0.5}>Trạng thái</Typography>
+              <select
+                value={pendingStatus}
+                onChange={e => setPendingStatus(e.target.value)}
+                style={{ width: '100%', padding: 8, borderRadius: 4, border: '1px solid #ccc' }}
+              >
+                <option value="">Tất cả</option>
+                <option value="1">Chờ xét duyệt</option>
+                <option value="2">Đã duyệt</option>
+                <option value="3">Đã từ chối</option>
+              </select>
+            </Box>
+            <Button variant="contained" color="primary" onClick={handleApplyFilter} sx={{ height: 40, mt: isMobile ? 1 : 3 }}>
+              Tìm kiếm
+            </Button>
+          </Stack>
           {loading && (
             <Box display="flex" flexDirection="column" alignItems="center" justifyContent="center" minHeight={300}>
               <CircularProgress sx={{ mt: 2 }} />
               <Typography variant="subtitle1" color="text.secondary" mt={2}>Đang tải dữ liệu...</Typography>
             </Box>
           )}
-          {error && <Alert severity="error" sx={{ mt: 2 }}>{error}</Alert>}
-          {!loading && !error && (
-            <>
-              <TableContainer component={Paper} sx={{ mt: 2, borderRadius: 2, boxShadow: 1 }}>
-                <Table size={isMobile ? 'small' : 'medium'}>
-                  <TableHead>
+      {error && <Alert severity="error" sx={{ mt: 2 }}>{error}</Alert>}
+      {!loading && !error && (
+        <>
+              <TableContainer component={Paper} sx={{ mt: 2, borderRadius: 2, boxShadow: 1, minWidth: 1200 }}>
+                <Table size={isMobile ? 'small' : 'medium'} sx={{ minWidth: 1200 }}>
+              <TableHead>
                     <TableRow sx={{ background: theme.palette.grey[100] }}>
                       <TableCell><b>Ảnh thẻ SV</b></TableCell>
                       <TableCell><b>Mã SV</b></TableCell>
@@ -131,44 +176,44 @@ const ViewStudentRequest = () => {
                       <TableCell><b>Ngày sinh</b></TableCell>
                       <TableCell><b>Trạng thái</b></TableCell>
                       <TableCell align="center"><b>Thao tác</b></TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {students.length === 0 ? (
-                      <TableRow>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {students.length === 0 ? (
+                  <TableRow>
                         <TableCell colSpan={8} align="center" sx={{ py: 6 }}>
                           <Box display="flex" flexDirection="column" alignItems="center" justifyContent="center">
                             <img src={mrtBanner} alt="No data" style={{ width: 180, opacity: 0.7, marginBottom: 16 }} />
                             <Typography variant="h6" color="text.secondary">Không có yêu cầu nào.</Typography>
                           </Box>
                         </TableCell>
-                      </TableRow>
-                    ) : (
+                  </TableRow>
+                ) : (
                       students.map((stu, idx) => (
                         <TableRow key={stu.id} sx={{ background: idx % 2 === 0 ? theme.palette.grey[50] : '#fff', transition: 'background 0.2s', '&:hover': { background: theme.palette.action.hover } }}>
-                          <TableCell>
-                            <Avatar
-                              src={stu.studentCardImageUrl}
-                              alt={stu.studentCode}
-                              variant="rounded"
+                      <TableCell>
+                        <Avatar
+                          src={stu.studentCardImageUrl}
+                          alt={stu.studentCode}
+                          variant="rounded"
                               sx={{ width: 56, height: 56, border: `2px solid ${theme.palette.primary.light}` }}
-                            />
-                          </TableCell>
+                        />
+                      </TableCell>
                           <TableCell><Typography fontWeight={500}>{stu.studentCode}</Typography></TableCell>
                           <TableCell><Typography variant="body2">{stu.studentEmail}</Typography></TableCell>
-                          <TableCell>
+                      <TableCell>
                             <Typography variant="body2">
-                              {stu.fullName
-                                ? `${stu.fullName.lastName} ${stu.fullName.firstName}`
-                                : ''}
+                        {stu.fullName
+                          ? `${stu.fullName.lastName} ${stu.fullName.firstName}`
+                          : ''}
                             </Typography>
-                          </TableCell>
+                      </TableCell>
                           <TableCell><Typography variant="body2">{stu.schoolName}</Typography></TableCell>
-                          <TableCell>
+                      <TableCell>
                             <Typography variant="body2">
-                              {stu.dateOfBirth
-                                ? new Date(stu.dateOfBirth).toLocaleDateString()
-                                : ''}
+                        {stu.dateOfBirth
+                          ? new Date(stu.dateOfBirth).toLocaleDateString()
+                          : ''}
                             </Typography>
                           </TableCell>
                           <TableCell>
@@ -183,33 +228,33 @@ const ViewStudentRequest = () => {
                                 />
                               );
                             })()}
-                          </TableCell>
-                          <TableCell align="center">
+                      </TableCell>
+                      <TableCell align="center">
                             <Stack direction="row" spacing={1} justifyContent="center" alignItems="center">
                               {stu.status === 1 ? (
                                 <>
                                   <Tooltip title="Duyệt">
                                     <span>
-                                      <IconButton
-                                        color="success"
-                                        onClick={() => handleApprove(stu.id)}
-                                        disabled={approvingId === stu.id}
+                        <IconButton
+                          color="success"
+                          onClick={() => handleApprove(stu.id)}
+                          disabled={approvingId === stu.id}
                                         size={isMobile ? 'small' : 'medium'}
-                                      >
-                                        <CheckCircle />
-                                      </IconButton>
+                        >
+                          <CheckCircle />
+                        </IconButton>
                                     </span>
                                   </Tooltip>
                                   <Tooltip title="Từ chối">
                                     <span>
-                                      <IconButton
-                                        color="error"
-                                        onClick={() => handleDelete(stu.id)}
-                                        disabled={deletingId === stu.id}
+                        <IconButton
+                          color="error"
+                          onClick={() => handleDelete(stu.id)}
+                          disabled={deletingId === stu.id}
                                         size={isMobile ? 'small' : 'medium'}
-                                      >
-                                        <DeleteIcon />
-                                      </IconButton>
+                        >
+                          <DeleteIcon />
+                        </IconButton>
                                     </span>
                                   </Tooltip>
                                 </>
@@ -220,25 +265,25 @@ const ViewStudentRequest = () => {
                                 </Stack>
                               )}
                             </Stack>
-                          </TableCell>
-                        </TableRow>
-                      ))
-                    )}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-              <Box display="flex" justifyContent="center" mt={3}>
-                <Pagination
-                  count={totalPages}
-                  page={page}
-                  onChange={handlePageChange}
-                  color="primary"
-                  shape="rounded"
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </TableContainer>
+          <Box display="flex" justifyContent="center" mt={3}>
+            <Pagination
+              count={totalPages}
+              page={page}
+              onChange={handlePageChange}
+              color="primary"
+              shape="rounded"
                   size={isMobile ? 'small' : 'medium'}
-                />
-              </Box>
-            </>
-          )}
+            />
+          </Box>
+        </>
+      )}
         </CardContent>
       </Card>
     </Box>

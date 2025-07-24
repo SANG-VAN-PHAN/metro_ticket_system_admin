@@ -9,6 +9,7 @@ import IntroPage from 'component/IntroPage';
 import FeedbackTypeList from 'component/Feedback/FeedbackTypeList';
 import FeedbackTypeCreate from 'component/Feedback/FeedbackTypeCreate';
 import FeedbackTypeUpdate from 'component/Feedback/FeedbackTypeUpdate';
+import FeedbackList from 'component/Feedback/FeedbackList';
 
 const UtilsTypography = Loadable(lazy(() => import('views/Utils/Typography')));
 const SamplePage = Loadable(lazy(() => import('views/SamplePage')));
@@ -23,6 +24,7 @@ const CreatePromotion = Loadable(lazy(() => import('component/Promotion/CreatePr
 const StudentRequest = Loadable(lazy(() => import('component/StudentRequest/ViewStudentRequest')));
 const DetailStudentRequest = Loadable(lazy(() => import('component/StudentRequest/DetailStudentRequest')));
 const ViewCustomers = Loadable(lazy(() => import('component/Customers/ViewCustomers')));
+const ViewPriceRanges = Loadable(lazy(() => import('component/PriceRanges/ViewPriceRanges')));
 
 const CreateStaff = Loadable(lazy(() => import('component/Staff/CreateStaff')));
 const DeleteStaff = Loadable(lazy(() => import('component/Staff/DeleteStaff')));
@@ -47,6 +49,10 @@ const DetailTicket = Loadable(lazy(() => import('component/Ticket/DetailTicket')
 const CreateBusRoute = Loadable(lazy(() => import('component/BusRoutes/CreateBusRoute')));
 const DeleteBusRoute = Loadable(lazy(() => import('component/BusRoutes/DeleteBusRoute')));
 const UpdateBusRoute = Loadable(lazy(() => import('component/BusRoutes/UpdateBusRoute')));
+
+const CreatePriceRange = Loadable(lazy(() => import('component/PriceRanges/CreatePriceRange')));
+const UpdatePriceRange = Loadable(lazy(() => import('component/PriceRanges/UpdatePriceRange')));
+const DeletePriceRange = Loadable(lazy(() => import('component/PriceRanges/DeletePriceRange')));
 
 // Role-based Auth wrapper component
 const RoleBasedRoute = ({ children, allowedRoles = [] }) => {
@@ -136,6 +142,24 @@ const MainRoutes = {
     { path: '/feedback-types', element: <RoleBasedRoute allowedRoles={['Administrator']}><FeedbackTypeList /></RoleBasedRoute> },
     { path: '/feedback-types/create', element: <RoleBasedRoute allowedRoles={['Administrator']}><FeedbackTypeCreate /></RoleBasedRoute> },
     { path: '/feedback-types/update/:id', element: <RoleBasedRoute allowedRoles={['Administrator']}><FeedbackTypeUpdate /></RoleBasedRoute> },
+    { path: '/admin-feedbacks', element: <RoleBasedRoute allowedRoles={['Administrator']}><FeedbackList /></RoleBasedRoute> },
+    {
+      path: '/price-ranges',
+      element: <RoleBasedRoute allowedRoles={['Administrator']}><ViewPriceRanges /></RoleBasedRoute>
+    },
+    {
+      path: '/price-ranges/create',
+      element: <RoleBasedRoute allowedRoles={['Administrator']}><CreatePriceRange /></RoleBasedRoute>
+    },
+    {
+      path: '/price-ranges/update/:id',
+      element: <RoleBasedRoute allowedRoles={['Administrator']}><UpdatePriceRange /></RoleBasedRoute>
+    },
+    {
+      path: '/price-ranges/delete/:id',
+      element: <RoleBasedRoute allowedRoles={['Administrator']}><DeletePriceRange /></RoleBasedRoute>
+    },
+    // TODO: sẽ thêm các route create, update, delete bên dưới
 
     // Station management routes - Administrator only
     { path: '/stations/create', element: <RoleBasedRoute allowedRoles={['Administrator']}><CreateStation /></RoleBasedRoute> },

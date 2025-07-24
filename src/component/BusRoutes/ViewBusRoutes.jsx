@@ -63,12 +63,10 @@ const ViewBusRoutes = () => {
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell>Mã tuyến</TableCell>
-                <TableCell>Tên tuyến</TableCell>
-                <TableCell>Biển số</TableCell>
-                <TableCell>Sức chứa</TableCell>
+                <TableCell>Mã xe</TableCell>
+                <TableCell>Xuất phát tại ga</TableCell>
+                <TableCell>Tên điểm đến</TableCell>
                 <TableCell>Trạng thái</TableCell>
-                <TableCell>Station ID</TableCell>
                 <TableCell>Hành động</TableCell>
               </TableRow>
             </TableHead>
@@ -85,11 +83,9 @@ const ViewBusRoutes = () => {
                 buses.map((bus) => (
                   <TableRow key={bus.id}>
                     <TableCell>{bus.code}</TableCell>
+                    <TableCell>{bus.stationName}</TableCell>
                     <TableCell>{bus.destinationName}</TableCell>
-                    <TableCell>{bus.licensePlates}</TableCell>
-                    <TableCell>{bus.capacity}</TableCell>
-                    <TableCell>{bus.status}</TableCell>
-                    <TableCell>{bus.stationId}</TableCell>
+                    <TableCell>{!bus.status ? 'Đang hoạt động' : 'Ngưng hoạt động'}</TableCell>
                     <TableCell>
                       <Button
     variant="outlined"
